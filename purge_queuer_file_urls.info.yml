@@ -1,0 +1,7 @@
+name: 'File URLs Queuer'
+type: module
+description: 'Purger for file URLs derived from file upload fields.'
+package: "Purge - queuers"
+core_version_requirement: ^8 || ^9 || ^10
+dependencies:
+    - purge:purge
