@@ -125,7 +125,7 @@ class EntityUpdateService {
       $field_type_class = $field_type_definition['class'];
       // We are only concerned with file fields.
       if (is_a($field_type_class, FileItem::class, TRUE)) {
-        foreach ($entity->{$entity_field_definition->getName()} as $field_item) {
+        foreach ($entity->{$entity_field_definition->getName()} as $delta => $field_item) {
           /** @var \Drupal\file\FileInterface $file */
           $file_uri = $field_item->entity->getFileUri();
           $urls[] = $this->fileUrlGenerator->generate($file_uri);

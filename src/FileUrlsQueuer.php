@@ -72,7 +72,7 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
         if (isset($invalidatedUrls[$url->toString()])) {
           continue;
         }
-        $invalidation_type = $absolute ? 'absoluteurl' : 'baserelativeurl';
+        $invalidation_type = $absolute ? 'absoluteurl' : 'rootrelativeurl';
         try {
           $invalidations[] = $this->purgeInvalidationFactory->get($invalidation_type, $url);
           $this->invalidatedUrls[$url->toString()] = TRUE;
