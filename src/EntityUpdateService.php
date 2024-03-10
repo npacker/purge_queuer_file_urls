@@ -2,6 +2,7 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -15,6 +16,13 @@ use Drupal\image\Plugin\Field\FieldType\ImageItem;
  * Helper class to handle entity updates.
  */
 class EntityUpdateService {
+
+  /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
 
   /**
    * The field type plugin manager.
@@ -45,6 +53,13 @@ class EntityUpdateService {
   protected $fileUrlsQueuer;
 
   /**
+   * Configuration for the file URLs queuer.
+   *
+   * @var array|null
+   */
+  protected $config;
+
+  /**
    * Construct a new EntityUpdateService object.
    *
    * @param \Drupal\Core\Field\FieldTypePluginManager $field_type_plugin_manager
@@ -53,12 +68,37 @@ class EntityUpdateService {
    *   The entity field manager.
    * @param \Drupal\purge_queuer_file_urls\FileUrlsQueuerInterface $file_urls_queuer
    *   The file URLs queuer.
+   * @param array|null $config
+   *   Configuration for the file URLs queuer.
    */
-  public function __construct(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer) {
+  public function __construct(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer, $config) {
     $this->fieldTypePluginManager = $field_type_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->fileUrlGenerator = $file_url_generator;
     $this->fileUrlsQueuer = $file_urls_queuer;
+    $this->config = $config;
+  }
+
+  /**
+   * Factory method for the EntityUpdateService class.
+   *
+   * @param \Drupal\Core\Field\FieldTypePluginManager $field_type_plugin_manager
+   *   The field type plugin manager.
+   * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
+   *   The entity field manager.
+   * @param \Drupal\purge_queuer_file_urls\FileUrlsQueuerInterface $file_urls_queuer
+   *   The file URLs queuer.
+   * @param \Druapal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
+   */
+  public static function create(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer, ConfigFactoryInterface $config_factory) {
+    return new static(
+      $field_type_plugin_manager,
+      $entity_field_manager,
+      $file_url_generator,
+      $file_urls_queuer,
+      $config_factory->get('purge_queuer_file_urls.settings'),
+    );
   }
 
   /**
@@ -101,7 +141,7 @@ class EntityUpdateService {
         }
       }
     }
-    $this->fileUrlsQueuer->invalidateUrls($urls);
+    $this->fileUrlsQueuer->invalidateUrls($urls, $this->config->get('absolute_urls'));
   }
 
 }
