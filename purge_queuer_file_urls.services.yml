@@ -13,4 +13,4 @@ services:
   # Provides a service object to handle entity update processing.
   purge_queuer_file_urls.entity_update_service:
     class: Drupal\purge_queuer_file_urls\EntityUpdateService
-    arguments: ['@plugin.manager.field.field_type', '@entity_field.manager', '@purge_queuer_file_urls.queuer']
+    arguments: ['@plugin.manager.field.field_type', '@entity_field.manager', '@file_url_generator', '@purge_queuer_file_urls.queuer']

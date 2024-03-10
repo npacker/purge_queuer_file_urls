@@ -6,6 +6,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldTypePluginManager;
+use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\file\Plugin\Field\FieldType\FileItem;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
@@ -30,6 +31,13 @@ class EntityUpdateService {
   protected $entityFieldManager;
 
   /**
+   * The file URL generator.
+   *
+   * @var \Drupal\Core\File\FileUrlGeneratorInterface
+   */
+  protected $fileUrlGenerator;
+
+  /**
    * The file URLs queuer.
    *
    * @var \Drupal\purge_queuer_file_urls\FileUrlsQueuerInterface
@@ -46,9 +54,10 @@ class EntityUpdateService {
    * @param \Drupal\purge_queuer_file_urls\FileUrlsQueuerInterface $file_urls_queuer
    *   The file URLs queuer.
    */
-  public function __construct(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlsQueuerInterface $file_urls_queuer) {
+  public function __construct(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer) {
     $this->fieldTypePluginManager = $field_type_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
+    $this->fileUrlGenerator = $file_url_generator;
     $this->fileUrlsQueuer = $file_urls_queuer;
   }
 
@@ -65,7 +74,6 @@ class EntityUpdateService {
     if (!($entity instanceof FieldableEntityInterface)) {
       return;
     }
-
     $urls = [];
     $entity_type_id = $entity->getEntityTypeId();
     $bundle = $entity->bundle();
@@ -78,28 +86,25 @@ class EntityUpdateService {
       $field_type_class = $field_type_definition['class'];
 
       // We are only concerned with file fields.
-      if (!is_a($field_type_class, FileItem::class, TRUE)) {
-        continue;
-      }
+      if (is_a($field_type_class, FileItem::class, TRUE)) {
+        foreach ($entity->{$entity_field_definition->getName()} as $field_item) {
+          /** @var \Drupal\file\FileInterface $file */
+          $file_uri = $field_item->entity->getFileUri();
+          $urls[] = $this->fileUrlGenerator->generate($file_uri);
 
-      /** @var \Drupal\file\FileInterface $file */
-      $file = $entity->{$entity_field_definition->getName()}->entity;
-      $file_url = $file->createFileUrl(FALSE);
-      $urls[] = $file_url;
+          // If this is an image field, we need to account for image styles.
+          if (is_a($field_type_class, ImageItem::class, TRUE)) {
+            $image_styles = ImageStyle::loadMultiple();
 
-      // If this is an image field, we need to account for image styles.
-      if (is_a($field_type_class, ImageItem::class, TRUE)) {
-        $file_uri = $file->getFileUri();
-        $image_styles = ImageStyle::loadMultiple();
-
-        /** @var \Drupal\image\Entity\ImageStyle $image_style */
-        foreach ($image_styles as $image_style) {
-          $image_style_url = $image_style->buildUrl($file_uri);
-          $urls[] = $image_style_url;
+            /** @var \Drupal\image\Entity\ImageStyle $image_style */
+            foreach ($image_styles as $image_style) {
+              $image_style_uri = $image_style->buildUri($file_uri);
+              $urls[] = $this->fileUrlGenerator->generate($image_style_uri);
+            }
+          }
         }
       }
     }
-
     $this->fileUrlsQueuer->invalidateUrls($urls);
   }
 

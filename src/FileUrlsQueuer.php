@@ -37,6 +37,15 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
   protected $purgeQueuerPlugin;
 
   /**
+   * A list of URLs that have already been invalidated this request.
+   *
+   * Used to prevent the invalidation of the same URL multiple times.
+   *
+   * @var array
+   */
+  protected $invalidatedUrls = [];
+
+  /**
    * Constructs a new FileURlsQueuer object.
    *
    * @param \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface $purge_invalidation_factory
@@ -55,20 +64,26 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
   /**
    * {@inheritdoc}
    */
-  public function invalidateUrls(array $urls) {
+  public function invalidateUrls(array $urls, bool $absolute = FALSE) {
     if ($this->purgeQueuerPlugin) {
       $invalidations = [];
+      /** @var \Drupal\Core\Url $url */
       foreach ($urls as $url) {
+        if (isset($invalidatedUrls[$url->toString()])) {
+          continue;
+        }
+        $invalidation_type = $absolute ? 'absoluteurl' : 'baserelativeurl';
         try {
-          $invalidations[] = $this->purgeInvalidationFactory->get('url', $url);
+          $invalidations[] = $this->purgeInvalidationFactory->get($invalidation_type, $url);
+          $this->invalidatedUrls[$url->toString()] = TRUE;
         }
         catch (TypeUnsupportedException $e) {
           // A purger with URL support is not enabled.
           return;
         }
         catch (PluginNotFoundException $e) {
-          // Uninstalling Purge may cause transient spurious attempts to load missing
-          // plugins.
+          // Uninstalling Purge or an otherwise stale plugin cache may prevent
+          // the plugin from loading.
           return;
         }
       }
