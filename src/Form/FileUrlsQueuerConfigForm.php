@@ -10,6 +10,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\purge_ui\Form\QueuerConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * The configuration form for the file URLs queuer.
+ */
 class FileUrlsQueuerConfigForm extends QueuerConfigFormBase {
 
   /**
@@ -84,9 +87,12 @@ class FileUrlsQueuerConfigForm extends QueuerConfigFormBase {
         '%absoluteurl' => 'absolute',
         '%baserelativeurl' => 'base-relative',
       ]),
+      '#default_value' => $config->get('absolute_urls'),
     ];
     $form['entity_types'] = [
+      '#type' => 'container',
       '#markup' => $this->t('Configure entity type bundles to queue for file URL purging. If none are selected, all entity bundles will be eligible.'),
+      '#tree' => TRUE,
     ];
     $entity_types = $config->get('entity_types') ?? [];
     $entity_type_definitions = $this->entityTypeManager->getDefinitions();
@@ -105,7 +111,7 @@ class FileUrlsQueuerConfigForm extends QueuerConfigFormBase {
             '#type' => 'checkboxes',
             '#multiple' => TRUE,
             '#options' => $options,
-            '#default_value' => isset($entity_types[$entity_type_id]) ? $entity_types[$entity_type_id] : [],
+            '#default_value' => isset($entity_types[$entity_type_id]['bundles']) ? $entity_types[$entity_type_id]['bundles'] : [],
           ];
         }
       }
@@ -118,7 +124,9 @@ class FileUrlsQueuerConfigForm extends QueuerConfigFormBase {
    */
   public function submitFormSuccess(array &$form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
-    foreach ($form_state->getValue('entity_types') as $entity_type) { }
+    $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
+    $config->set('entity_types', $form_state->getValue('entity_types'));
+    $config->save();
   }
 
   /**
