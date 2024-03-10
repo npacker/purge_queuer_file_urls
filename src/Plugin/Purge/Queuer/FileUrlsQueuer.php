@@ -13,6 +13,7 @@ use Drupal\purge\Plugin\Purge\Queuer\QueuerInterface;
  *   label = @Translation("File URLs Queuer"),
  *   description = @Translation("Queues File URLs."),
  *   enable_by_default = true,
+ *   configform = "\Drupal\purge_queuer_file_urls\Form\FileUrlsQueuerConfigForm",
  * )
  */
 class FileUrlsQueuer extends QueuerBase implements QueuerInterface {}
