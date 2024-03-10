@@ -7,5 +7,5 @@ use Drupal\Core\Entity\EntityInterface;
  */
 function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
   $entity_update_service = \Drupal::service('purge_queuer_file_urls.entity_update_service');
-  $entity_update_service->handleEntityUpdate($entity);
+  $entity_update_service->handleEntityUpdate($entity, $entity->original);
 }

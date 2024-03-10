@@ -109,7 +109,7 @@ class EntityUpdateService {
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The updated entity.
    */
-  public function handleEntityUpdate(EntityInterface $entity) {
+  public function handleEntityUpdate(EntityInterface $entity, EntityInterface $original) {
     // Skip non-fieldable entities.
     if (!($entity instanceof FieldableEntityInterface)) {
       return;
@@ -124,20 +124,30 @@ class EntityUpdateService {
       $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
       $field_type_class = $field_type_definition['class'];
       // We are only concerned with file fields.
-      if (is_a($field_type_class, FileItem::class, TRUE)) {
-        foreach ($entity->{$entity_field_definition->getName()} as $delta => $field_item) {
-          /** @var \Drupal\file\FileInterface $file */
-          $file_uri = $field_item->entity->getFileUri();
-          $urls[] = $this->fileUrlGenerator->generate($file_uri);
-          // If this is an image field, we need to account for image styles.
-          if (is_a($field_type_class, ImageItem::class, TRUE)) {
-            $image_styles = ImageStyle::loadMultiple();
-            /** @var \Drupal\image\Entity\ImageStyle $image_style */
-            foreach ($image_styles as $image_style) {
-              $image_style_uri = $image_style->buildUri($file_uri);
-              $urls[] = $this->fileUrlGenerator->generate($image_style_uri);
-            }
-          }
+      if (!is_a($field_type_class, FileItem::class, TRUE)) {
+        continue;
+      }
+      $field_name = $entity_field_definition->getName();
+      foreach ($entity->{$field_name} as $delta => $field_item) {
+        /** @var \Drupal\file\FileInterface $original_file */
+        $original_file = $original->{$field_name}->get($delta)->entity;
+        $original_file_uri = $original_file->getFileUri();
+        /** @var \Drupal\file\FileInterface $file */
+        $file = $field_item->entity;
+        $file_uri = $file->getFileUri();
+        if ($original_file->getSize() == $file->getSize() && \sha1_file($original_file_uri) == \sha1_file($file_uri)) {
+          continue;
+        }
+        $urls[] = $this->fileUrlGenerator->generate($file_uri);
+        // If this is an image field, we need to account for image styles.
+        if (!is_a($field_type_class, ImageItem::class, TRUE)) {
+          continue;
+        }
+        $image_styles = ImageStyle::loadMultiple();
+        /** @var \Drupal\image\Entity\ImageStyle $image_style */
+        foreach ($image_styles as $image_style) {
+          $image_style_uri = $image_style->buildUri($file_uri);
+          $urls[] = $this->fileUrlGenerator->generate($image_style_uri);
         }
       }
     }
