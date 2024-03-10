@@ -3,10 +3,10 @@
 namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Field\FieldTypePluginManager;
+use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\file\Plugin\Field\FieldType\FileItem;
 use Drupal\image\Entity\ImageStyle;
@@ -27,14 +27,14 @@ class EntityUpdateService {
   /**
    * The field type plugin manager.
    *
-   * @var \Drupal\Core\Field\FieldTypePluginManager
+   * @var \Drupal\Core\Field\FieldTypePluginManagerInterface
    */
   protected $fieldTypePluginManager;
 
   /**
    * The entity field manager.
    *
-   * @var \Drupal\Core\Entity\EntityFieldManager
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
    */
   protected $entityFieldManager;
 
@@ -62,16 +62,16 @@ class EntityUpdateService {
   /**
    * Construct a new EntityUpdateService object.
    *
-   * @param \Drupal\Core\Field\FieldTypePluginManager $field_type_plugin_manager
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
    *   The field type plugin manager.
-   * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
    * @param \Drupal\purge_queuer_file_urls\FileUrlsQueuerInterface $file_urls_queuer
    *   The file URLs queuer.
    * @param array|null $config
    *   Configuration for the file URLs queuer.
    */
-  public function __construct(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer, $config) {
+  public function __construct(FieldTypePluginManagerInterface $field_type_plugin_manager, EntityFieldManagerInterface $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer, $config) {
     $this->fieldTypePluginManager = $field_type_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
     $this->fileUrlGenerator = $file_url_generator;
@@ -82,16 +82,16 @@ class EntityUpdateService {
   /**
    * Factory method for the EntityUpdateService class.
    *
-   * @param \Drupal\Core\Field\FieldTypePluginManager $field_type_plugin_manager
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
    *   The field type plugin manager.
-   * @param \Drupal\Core\Entity\EntityFieldManager $entity_field_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
    * @param \Drupal\purge_queuer_file_urls\FileUrlsQueuerInterface $file_urls_queuer
    *   The file URLs queuer.
    * @param \Druapal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    */
-  public static function create(FieldTypePluginManager $field_type_plugin_manager, EntityFieldManager $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer, ConfigFactoryInterface $config_factory) {
+  public static function create(FieldTypePluginManagerInterface $field_type_plugin_manager, EntityFieldManagerInterface $entity_field_manager, FileUrlGeneratorInterface $file_url_generator, FileUrlsQueuerInterface $file_urls_queuer, ConfigFactoryInterface $config_factory) {
     return new static(
       $field_type_plugin_manager,
       $entity_field_manager,
