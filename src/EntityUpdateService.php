@@ -78,24 +78,20 @@ class EntityUpdateService {
     $entity_type_id = $entity->getEntityTypeId();
     $bundle = $entity->bundle();
     $entity_field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
-
     /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
     foreach ($entity_field_definitions as $entity_field_definition) {
       $field_type_id = $entity_field_definition->getType();
       $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
       $field_type_class = $field_type_definition['class'];
-
       // We are only concerned with file fields.
       if (is_a($field_type_class, FileItem::class, TRUE)) {
         foreach ($entity->{$entity_field_definition->getName()} as $field_item) {
           /** @var \Drupal\file\FileInterface $file */
           $file_uri = $field_item->entity->getFileUri();
           $urls[] = $this->fileUrlGenerator->generate($file_uri);
-
           // If this is an image field, we need to account for image styles.
           if (is_a($field_type_class, ImageItem::class, TRUE)) {
             $image_styles = ImageStyle::loadMultiple();
-
             /** @var \Drupal\image\Entity\ImageStyle $image_style */
             foreach ($image_styles as $image_style) {
               $image_style_uri = $image_style->buildUri($file_uri);
