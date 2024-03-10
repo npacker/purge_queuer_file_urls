@@ -33,6 +33,12 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
     if (!($this->expression instanceof Url)) {
       throw new InvalidExpressionException('Expression must be an instance of \Drupal\Core\Url.');
     }
+    try {
+      $this->expression->toString();
+    }
+    catch (Exception $e) {
+      throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);
+    }
   }
 
 }
