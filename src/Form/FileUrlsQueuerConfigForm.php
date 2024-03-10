@@ -83,15 +83,12 @@ class FileUrlsQueuerConfigForm extends QueuerConfigFormBase {
     $form['url_options']['absolute_urls'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Absolute Urls'),
-      '#description' => $this->t('Urls can be purged as %absoluteurl ("http://www.site.com/path/file.ext") or %baserelativeurl ("/path/file.ext"). Ensure that a purger with the corresponding type is configured under the "Cache Invalidation" options.', [
-        '%absoluteurl' => 'absolute',
-        '%baserelativeurl' => 'base-relative',
-      ]),
+      '#description' => $this->t('Urls can be purged as <em>absolute</em> ("http://www.site.com/path/file.ext") or <em>base-relative</em> ("/path/file.ext"). Ensure that a purger with the corresponding type is configured under the "Cache Invalidation" options.'),
       '#default_value' => $config->get('absolute_urls'),
     ];
     $form['entity_types'] = [
       '#type' => 'container',
-      '#markup' => $this->t('Configure entity type bundles to queue for file URL purging. If none are selected, all entity bundles will be eligible.'),
+      '#markup' => $this->t('Configure entity type bundles to queue for file URL purging on entity update. If none are selected, all entity bundles will be eligible.'),
       '#tree' => TRUE,
     ];
     $entity_types = $config->get('entity_types') ?? [];
