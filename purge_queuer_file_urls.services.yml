@@ -6,12 +6,12 @@ services:
   # services to perform URL invalidation.
   purge_queuer_file_urls.queuer:
     class: Drupal\purge_queuer_file_urls\FileUrlsQueuer
-    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers']
-
-  # PURGE_QUEUER_FILE_URLS.ENTITY_UPDATE_SERVICE
-  #
-  # Provides a service object to handle entity update processing.
-  purge_queuer_file_urls.entity_update_service:
-    class: Drupal\purge_queuer_file_urls\EntityUpdateService
     factory: [null, 'create']
-    arguments: ['@plugin.manager.field.field_type', '@entity_field.manager', '@file_url_generator', '@purge_queuer_file_urls.queuer', '@config.factory']
+    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers', '@config.factory']
+
+  # PURGE_QUEUER_FILE_URLS.FILE_URLS_COLLECTOR
+  #
+  # Provides a service object to collect file urls.
+  purge_queuer_file_urls.collector:
+    class: Drupal\purge_queuer_file_urls\FileUrlsCollector
+    arguments: ['@plugin.manager.field.field_type', '@entity_field.manager', '@file_url_generator']

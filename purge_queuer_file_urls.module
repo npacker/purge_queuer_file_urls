@@ -6,6 +6,8 @@ use Drupal\Core\Entity\EntityInterface;
  * Implements hook_entity_update().
  */
 function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
-  $entity_update_service = \Drupal::service('purge_queuer_file_urls.entity_update_service');
-  $entity_update_service->handleEntityUpdate($entity, $entity->original);
+  $file_urls_collector = \Drupal::service('purge_queuer_file_urls.collector');
+  $urls = $file_urls_collector->collect($entity);
+  $file_urls_queuer = \Drupal::service('purge_queuer_file_urls.queuer');
+  $file_urls_queuer->invalidateUrls($urls);
 }

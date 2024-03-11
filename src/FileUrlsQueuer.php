@@ -3,17 +3,17 @@
 namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Logger\LoggerChannelTrait;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\purge\Plugin\Purge\Invalidation\Exception\TypeUnsupportedException;
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
+use Drupal\purge\Plugin\Purge\Queuer\QueuerInterface;
 use Drupal\purge\Plugin\Purge\Queuer\QueuersServiceInterface;
 
 /**
  * Queues file urls for cache invalidation.
  */
 class FileUrlsQueuer implements FileUrlsQueuerInterface {
-  use LoggerChannelTrait;
 
   /**
    * The purge invalidation factory service.
@@ -37,6 +37,13 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
   protected $purgeQueuerPlugin;
 
   /**
+   * The invalidation type to set for invalidated file urls.
+   *
+   * @var string
+   */
+  protected $invalidationType;
+
+  /**
    * A list of URLs that have already been invalidated this request.
    *
    * Used to prevent the invalidation of the same URL multiple times.
@@ -46,7 +53,26 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
   protected $invalidatedUrls = [];
 
   /**
-   * Constructs a new FileURlsQueuer object.
+   * Constructs a new FileUrlsQueuer.
+   *
+   * @param \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface $purge_invalidation_factory
+   *   The purge invalidation factory service.
+   * @param \Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface $purge_queue
+   *   The purge queue service.
+   * @param \Drupal\purge\Plugin\Queuer\Queuer $purge_queuer_plugin
+   *   The purge queuer plugin.
+   * @param string $invalidation_type
+   *   The invalidation type.
+   */
+  public function __construct(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuerInterface $purge_queuer_plugin, $invalidation_type) {
+    $this->purgeInvalidationFactory = $purge_invalidation_factory;
+    $this->purgeQueue = $purge_queue;
+    $this->purgeQueuerPlugin = $purge_queuer_plugin;
+    $this->invalidationType = $invalidation_type;
+  }
+
+  /**
+   * Factory method for the FileUrlsQueuer.
    *
    * @param \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface $purge_invalidation_factory
    *   The purge invalidation factory service.
@@ -55,16 +81,23 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
    * @param \Drupal\purge\Plugin\Queuer\QueuersServiceInterface $purge_queuers
    *   The purge queuers service.
    */
-  public function __construct(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuersServiceInterface $purge_queuers) {
-    $this->purgeInvalidationFactory = $purge_invalidation_factory;
-    $this->purgeQueue = $purge_queue;
-    $this->purgeQueuerPlugin = $purge_queuers->get('fileurls');
+  public static function create(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuersServiceInterface $purge_queuers, ConfigFactoryInterface $config_factory) {
+    $purge_queuer_plugin = $purge_queuers->get('fileurls');
+    $config = $config_factory->get('purge_queuer_file_urls.settings');
+    $absolute_urls = $config->get('absolute_urls') ?? FALSE;
+    $invalidation_type = $absolute_urls ? 'absoluteurl' : 'rootrelativeurl';
+    return new static(
+      $purge_invalidation_factory,
+      $purge_queue,
+      $purge_queuer_plugin,
+      $invalidation_type
+    );
   }
 
   /**
    * {@inheritdoc}
    */
-  public function invalidateUrls(array $urls, bool $absolute = FALSE) {
+  public function invalidateUrls(array $urls) {
     if ($this->purgeQueuerPlugin) {
       $invalidations = [];
       /** @var \Drupal\Core\Url $url */
@@ -72,9 +105,8 @@ class FileUrlsQueuer implements FileUrlsQueuerInterface {
         if (isset($invalidatedUrls[$url->toString()])) {
           continue;
         }
-        $invalidation_type = $absolute ? 'absoluteurl' : 'rootrelativeurl';
         try {
-          $invalidations[] = $this->purgeInvalidationFactory->get($invalidation_type, $url);
+          $invalidations[] = $this->purgeInvalidationFactory->get($this->invalidationType, $url);
           $this->invalidatedUrls[$url->toString()] = TRUE;
         }
         catch (TypeUnsupportedException $e) {
