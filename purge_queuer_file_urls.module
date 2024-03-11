@@ -8,6 +8,23 @@ use Drupal\Core\Entity\EntityInterface;
 function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
   $file_urls_collector = \Drupal::service('purge_queuer_file_urls.collector');
   $urls = $file_urls_collector->collect($entity);
-  $file_urls_queuer = \Drupal::service('purge_queuer_file_urls.queuer');
+  $file_urls_queuer = \Drupal::service('purge_queuer_file_urls.urls_queuer');
   $file_urls_queuer->invalidateUrls($urls);
+}
+
+/**
+ * Implements hook_image_style_flush().
+ */
+function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
+  $file_url_generator = \Drupal::service('file_url_generator');
+  $urls = [];
+  if ($path) {
+    $urls[] = $file_url_generator->generate($style->buildUri($path));
+  }
+  else {
+    $config = \Drupal::config('purge_queuer_file_urls.settings');
+    $urls[] = $file_url_generator->generate($style->buildUri(''))->setAbsolute($config->get('absolute_urls'))->toString() . '/*';
+  }
+  $image_style_urls_queuer = \Drupal::service('purge_queuer_file_urls.wildcard_urls_queuer');
+  $image_style_urls_queuer->invalidateUrls($urls);
 }

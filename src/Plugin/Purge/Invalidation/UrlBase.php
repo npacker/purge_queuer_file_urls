@@ -22,7 +22,12 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
    * @return string
    */
   public function __toString() {
-    return $this->expression->setAbsolute($this->absolute)->toString();
+    if ($this->expression instanceof Url) {
+      return $this->expression->setAbsolute($this->absolute)->toString();
+    }
+    else {
+      return (string) $this->expression;
+    }
   }
 
   /**
@@ -30,14 +35,13 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
    */
   public function validateExpression() {
     parent::validateExpression();
-    if (!($this->expression instanceof Url)) {
-      throw new InvalidExpressionException('Expression must be an instance of \Drupal\Core\Url.');
-    }
-    try {
-      $this->expression->toString();
-    }
-    catch (Exception $e) {
-      throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);
+    if ($this->expression instanceof Url) {
+      try {
+        $this->expression->toString();
+      }
+      catch (\Exception $e) {
+        throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);
+      }
     }
   }
 

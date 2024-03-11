@@ -14,7 +14,7 @@ namespace Drupal\purge_queuer_file_urls\Plugin\Purge\Invalidation;
  *   expression_can_be_empty = FALSE,
  * )
  */
-class BaseRelativeUrl extends UrlBase {
+class AbsoluteUrl extends UrlBase {
 
   /**
    * {@inheritdoc}

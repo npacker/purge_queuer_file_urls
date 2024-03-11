@@ -8,9 +8,9 @@ use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
 use Drupal\purge\Plugin\Purge\Queuer\QueuersServiceInterface;
 
 /**
- * Queues file urls for cache invalidation.
+ * Queues image style url wildcards for invalidation.
  */
-class FileUrlsQueuer extends UrlsQueuerBase {
+class ImageStyleUrlWildcardsQueuer extends UrlsQueuerBase {
 
   /**
    * Factory method for the FileUrlsQueuer.
@@ -28,7 +28,7 @@ class FileUrlsQueuer extends UrlsQueuerBase {
     $purge_queuer_plugin = $purge_queuers->get('fileurls');
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls') ?? FALSE;
-    $invalidation_type = $absolute_urls ? 'absoluteurl' : 'rootrelativeurl';
+    $invalidation_type = $absolute_urls ? 'wildcardabsoluteurl' : 'wildcardrootrelativeurl';
     return new static(
       $purge_invalidation_factory,
       $purge_queue,

@@ -38,6 +38,13 @@ class FileUrlsCollector {
   protected $fileUrlGenerator;
 
   /**
+   * Collection of manipulators to process the collected URLs.
+   *
+   * @var array
+   */
+  protected $manipulators = [];
+
+  /**
    * Construct a new EntityUpdateService object.
    *
    * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
