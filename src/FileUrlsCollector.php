@@ -96,7 +96,7 @@ class FileUrlsCollector {
         /** @var \Drupal\image\Entity\ImageStyle $image_style */
         foreach ($image_styles as $image_style) {
           $image_style_uri = $image_style->buildUri($file_uri);
-        /** @var \Drupal\Core\Url */
+          /** @var \Drupal\Core\Url */
           $urls[] = $this->fileUrlGenerator->generate($image_style_uri);
         }
       }
