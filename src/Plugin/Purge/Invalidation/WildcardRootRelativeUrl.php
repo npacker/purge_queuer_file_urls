@@ -14,7 +14,7 @@ namespace Drupal\purge_queuer_file_urls\Plugin\Purge\Invalidation;
  *   expression_can_be_empty = FALSE,
  * )
  */
-class WildcardRooteRelativeUrl extends RooteRelativeUrl {
+class WildcardRootRelativeUrl extends RootRelativeUrl {
   use WildcardExpressionTrait;
 
   /**

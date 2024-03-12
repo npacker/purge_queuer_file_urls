@@ -10,7 +10,7 @@ use Drupal\purge\Plugin\Purge\Queuer\QueuersServiceInterface;
 /**
  * Queues image style url wildcards for invalidation.
  */
-class ImageStyleUrlWildcardsQueuer extends UrlsQueuerBase {
+class FileWildcardUrlsQueuer extends UrlsQueuerBase {
 
   /**
    * Factory method for the FileUrlsQueuer.

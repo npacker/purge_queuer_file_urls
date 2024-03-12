@@ -14,7 +14,7 @@ services:
   # Provides a file urls purge queuer the connects to the necessary purge
   # services to perform URL invalidation.
   purge_queuer_file_urls.wildcard_urls_queuer:
-    class: Drupal\purge_queuer_file_urls\ImageStyleWildcardUrlsQueuer
+    class: Drupal\purge_queuer_file_urls\FileWildcardUrlsQueuer
     factory: [null, 'create']
     arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers', '@config.factory']
 

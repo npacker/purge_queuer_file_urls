@@ -17,9 +17,7 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
   protected $absolute;
 
   /**
-   * Convert the internal \Drupal\Core\Url object to a string.
-   *
-   * @return string
+   * {@inheritdoc}
    */
   public function __toString() {
     if ($this->expression instanceof Url) {
@@ -32,12 +30,25 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
 
   /**
    * {@inheritdoc}
+   *
+   */
+  public function getExpression() {
+    if ($this->expression instanceof Url) {
+      return $this->expression->setAbsolute($this->absolute);
+    }
+    else {
+      return $this->expression;
+    }
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function validateExpression() {
     parent::validateExpression();
     if ($this->expression instanceof Url) {
       try {
-        $this->expression->toString();
+        $this->getExpression()->toString();
       }
       catch (\Exception $e) {
         throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);

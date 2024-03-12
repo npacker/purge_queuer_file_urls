@@ -3,6 +3,7 @@
 namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Url;
 use Drupal\purge\Plugin\Purge\Invalidation\Exception\TypeUnsupportedException;
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
@@ -66,17 +67,22 @@ abstract class UrlsQueuerBase implements FileUrlsQueuerInterface {
     $this->invalidationType = $invalidation_type;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function invalidateUrls($urls) {
     if ($this->purgeQueuerPlugin) {
       $invalidations = [];
-      /** @var \Drupal\Core\Url $url */
+      /** @var \Drupal\Core\Url|string $url */
       foreach ($urls as $url) {
-        if (isset($invalidatedUrls[$url->toString()])) {
-          continue;
-        }
         try {
-          $invalidations[] = $this->purgeInvalidationFactory->get($this->invalidationType, $url);
-          $this->invalidatedUrls[$url->toString()] = TRUE;
+          /** @var \Drupal\purge\Plugin\Purge\Invalidation\InvalidationInterface $invalidation */
+          $invalidation = $this->purgeInvalidationFactory->get($this->invalidationType, $url);
+          $key = (string) $invalidation;
+          if (empty($this->invalidatedUrls[$key])) {
+            $invalidations[] = $invalidation;
+            $this->invalidatedUrls[$key] = TRUE;
+          }
         }
         catch (TypeUnsupportedException $e) {
           // A purger with URL support is not enabled.
