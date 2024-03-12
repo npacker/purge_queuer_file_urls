@@ -7,8 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
  */
 function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
   $file_urls_collector = \Drupal::service('purge_queuer_file_urls.collector');
-  $urls = $file_urls_collector->collect($entity);
-  if ($urls) {
+  if ($urls = $file_urls_collector->collect($entity)) {
     $file_urls_queuer = \Drupal::service('purge_queuer_file_urls.urls_queuer');
     $file_urls_queuer->invalidateUrls($urls);
   }
