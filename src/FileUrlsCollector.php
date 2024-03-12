@@ -85,11 +85,10 @@ class FileUrlsCollector {
       if (!is_a($field_type_class, FileItem::class, TRUE)) {
         continue;
       }
-      $field_name = $entity_field_definition->getName();
-      foreach ($entity->{$field_name} as $delta => $field_item) {
-        /** @var \Drupal\file\FileInterface $file */
-        $file = $field_item->entity;
-        $file_uri = $file->getFileUri();
+      foreach ($entity->{$entity_field_definition->getName()} as $field_item) {
+        /** @var \Drupal\file\FileInterface */
+        $file_uri = $field_item->entity->getFileUri();
+        /** @var \Drupal\Core\Url */
         $urls[] = $this->fileUrlGenerator->generate($file_uri);
         if (!is_a($field_type_class, ImageItem::class, TRUE)) {
           continue;
@@ -97,6 +96,7 @@ class FileUrlsCollector {
         /** @var \Drupal\image\Entity\ImageStyle $image_style */
         foreach ($image_styles as $image_style) {
           $image_style_uri = $image_style->buildUri($file_uri);
+        /** @var \Drupal\Core\Url */
           $urls[] = $this->fileUrlGenerator->generate($image_style_uri);
         }
       }
