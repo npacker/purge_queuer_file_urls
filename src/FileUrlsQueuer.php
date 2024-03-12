@@ -25,7 +25,7 @@ class FileUrlsQueuer extends UrlsQueuerBase {
    *   The config factory.
    */
   public static function create(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuersServiceInterface $purge_queuers, ConfigFactoryInterface $config_factory) {
-    $purge_queuer_plugin = $purge_queuers->get('fileurls');
+    $purge_queuer_plugin = $purge_queuers->get('files');
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls') ?? FALSE;
     $invalidation_type = $absolute_urls ? 'absoluteurl' : 'rootrelativeurl';

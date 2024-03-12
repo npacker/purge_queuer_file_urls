@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * The configuration form for the file URLs queuer.
  */
-class FileUrlsQueuerConfigForm extends QueuerConfigFormBase {
+class FilesQueuerConfigForm extends QueuerConfigFormBase {
 
   /**
    * Set the entity type manager
