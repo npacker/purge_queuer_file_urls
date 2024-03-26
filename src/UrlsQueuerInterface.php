@@ -2,7 +2,7 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
-interface FileUrlsQueuerInterface {
+interface UrlsQueuerInterface {
 
   /**
    * Invalidate the given array of file URLs.
