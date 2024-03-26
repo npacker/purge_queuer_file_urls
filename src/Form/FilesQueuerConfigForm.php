@@ -78,7 +78,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config = $this->config('purge_queuer_file_urls.settings');
     $form['url_options'] = [
       '#type' => 'fieldset',
-      '#title' => 'Url Invalidation Options',
+      '#title' => 'Invalidation Options',
     ];
     $form['url_options']['absolute_urls'] = [
       '#type' => 'checkbox',
