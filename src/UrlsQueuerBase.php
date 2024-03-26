@@ -9,7 +9,7 @@ use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
 use Drupal\purge\Plugin\Purge\Queuer\QueuerInterface;
 
-abstract class UrlsQueuerBase implements FileUrlsQueuerInterface {
+abstract class UrlsQueuerBase implements UrlsQueuerInterface {
 
   /**
    * The purge invalidation factory service.
