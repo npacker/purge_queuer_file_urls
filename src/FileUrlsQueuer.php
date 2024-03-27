@@ -28,7 +28,7 @@ class FileUrlsQueuer extends UrlsQueuerBase {
     $purge_queuer_plugin = $purge_queuers->get('files');
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls') ?? FALSE;
-    $invalidation_type = $absolute_urls ? 'absoluteurl' : 'rootrelativeurl';
+    $invalidation_type = $absolute_urls ? 'absoluteurl' : 'relativeurl';
     return new static(
       $purge_invalidation_factory,
       $purge_queue,
