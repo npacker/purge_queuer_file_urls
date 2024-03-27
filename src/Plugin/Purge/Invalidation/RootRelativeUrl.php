@@ -11,7 +11,7 @@ namespace Drupal\purge_queuer_file_urls\Plugin\Purge\Invalidation;
  *   description = @Translation("Invalidates by root-relative URL."),
  *   examples = {"/file/handle.ext"},
  *   expression_required = TRUE,
- *   expression_can_be_empty = FALSE,
+ *   expression_can_be_empty = FALSE
  * )
  */
 class RootRelativeUrl extends UrlBase {
