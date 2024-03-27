@@ -21,10 +21,10 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
    */
   public function __toString() {
     if ($this->expression instanceof Url) {
-      return $this->getExpression()->toString();
+      return $this->expression->setAbsolute($this->absolute)->toString();
     }
     else {
-      return (string) $this->getExpression();
+      return (string) $this->expression;
     }
   }
 
@@ -33,12 +33,7 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
    *
    */
   public function getExpression() {
-    if ($this->expression instanceof Url) {
-      return $this->expression->setAbsolute($this->absolute);
-    }
-    else {
-      return $this->expression;
-    }
+    return (string) $this;
   }
 
   /**
@@ -46,13 +41,11 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
    */
   public function validateExpression() {
     parent::validateExpression();
-    if ($this->expression instanceof Url) {
-      try {
-        $this->getExpression()->toString();
-      }
-      catch (\Exception $e) {
-        throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);
-      }
+    try {
+      $expression = (string) $this;
+    }
+    catch (\Exception $e) {
+      throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);
     }
   }
 
