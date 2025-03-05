@@ -8,7 +8,7 @@ use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
 use Drupal\purge\Plugin\Purge\Queuer\QueuersServiceInterface;
 
 /**
- * Queues image style url wildcards for invalidation.
+ * Queues file url wildcards for invalidation.
  */
 class FileWildcardUrlsQueuer extends UrlsQueuerBase {
 
