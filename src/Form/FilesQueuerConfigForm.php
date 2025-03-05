@@ -137,10 +137,13 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   protected function getBundleOptions($entity_type_id) {
     $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
-    array_walk($bundles, function (&$bundle, $name) {
-      $bundle = $bundle['label'];
-    });
-    return $bundles;
+    $transformed_bundles = [];
+    foreach ($bundles as $name => $bundle) {
+      if (!empty($bundle['label'])) {
+        $transformed_bundles[$name] = $bundle['label'];
+      }
+    }
+    return $transformed_bundles;
   }
 
 }
