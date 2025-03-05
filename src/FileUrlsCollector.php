@@ -12,9 +12,9 @@ use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
- * Helper class to handle entity updates.
+ * Helper class to collect file URLs from entities.
  */
-class FileUrlsCollector {
+class FileUrlsCollector implements UrlsCollectorInterface {
 
   /**
    * The field type plugin manager.
