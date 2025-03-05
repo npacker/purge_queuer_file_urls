@@ -9,6 +9,14 @@ use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
 use Drupal\purge\Plugin\Purge\Queuer\QueuerInterface;
 
+/**
+ * Base class for URL queuer classes.
+ *
+ * Implementations of this class will inject the dependencies required by the
+ * specific queuer implementation. This includes the purge queuer plugin (to
+ * determine if the queuer has been enabled by the user), any relevant settings,
+ * and the invalidation type supported by the queuer.
+ */
 abstract class UrlsQueuerBase implements UrlsQueuerInterface {
 
   /**
