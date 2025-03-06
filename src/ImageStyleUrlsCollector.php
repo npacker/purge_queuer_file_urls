@@ -4,14 +4,13 @@ namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\file\Plugin\Field\FieldType\FileItem;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
- * Helper class to collect file URLs from entities.
+ * Helper class to collect image style URLs from entities.
  */
-class FileUrlsCollector extends UrlsCollectorBase {
+class ImageStyleUrlsCollector extends UrlsCollectorBase {
 
   /**
    * {@inheritdoc}
@@ -30,17 +29,12 @@ class FileUrlsCollector extends UrlsCollectorBase {
       $field_type_id = $entity_field_definition->getType();
       $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
       $field_type_class = $field_type_definition['class'];
-      if (!is_a($field_type_class, FileItem::class, TRUE)) {
+      if (!is_a($field_type_class, ImageItem::class, TRUE)) {
         continue;
       }
       foreach ($entity->{$entity_field_definition->getName()} as $field_item) {
         /** @var \Drupal\file\FileInterface */
         $file_uri = $field_item->entity->getFileUri();
-        /** @var \Drupal\Core\Url */
-        $urls[] = $this->fileUrlGenerator->generate($file_uri);
-        if (!is_a($field_type_class, ImageItem::class, TRUE)) {
-          continue;
-        }
         /** @var \Drupal\image\Entity\ImageStyle $image_style */
         foreach ($image_styles as $image_style) {
           $image_style_uri = $image_style->buildUri($file_uri);
