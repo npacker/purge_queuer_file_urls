@@ -2,6 +2,7 @@
 
 namespace Drupal\purge_queuer_file_urls\Plugin\Purge\Invalidation;
 
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Url;
 use Drupal\purge\Plugin\Purge\Invalidation\Exception\InvalidExpressionException;
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationBase;
