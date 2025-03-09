@@ -7,14 +7,12 @@ use Drupal\purge\Plugin\Purge\Invalidation\Exception\InvalidExpressionException;
 trait WildcardExpressionTrait {
 
   /**
-   * Validate a wildcard expression.
-   *
-   * @param string $expression
-   *  The expression to validate.
+   * {@inheritdoc}
    */
-  protected function validateWildcardExpression($expression) {
+  public function validateExpression() {
+    parent::validateExpression();
     if (strpos($expression, '*') === FALSE) {
-      throw new InvalidExpressionException('Wildcard invalidations should contain an asterisk.');
+      throw new InvalidExpressionException('Wildcard invalidations must contain an asterisk.');
     }
   }
 

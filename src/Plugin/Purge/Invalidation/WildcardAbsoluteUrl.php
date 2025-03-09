@@ -16,13 +16,4 @@ namespace Drupal\purge_queuer_file_urls\Plugin\Purge\Invalidation;
  */
 class WildcardAbsoluteUrl extends AbsoluteUrl {
   use WildcardExpressionTrait;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateExpression() {
-    parent::validateExpression();
-    $this->validateWildcardExpression($this->expression);
-  }
-
 }

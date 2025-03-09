@@ -16,13 +16,4 @@ namespace Drupal\purge_queuer_file_urls\Plugin\Purge\Invalidation;
  */
 class WildcardRelativeUrl extends RelativeUrl {
   use WildcardExpressionTrait;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateExpression() {
-    parent::validateExpression();
-    $this->validateWildcardExpression($this->expression);
-  }
-
 }

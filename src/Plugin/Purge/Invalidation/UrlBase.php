@@ -42,7 +42,10 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
   public function validateExpression() {
     parent::validateExpression();
     try {
-      $expression = (string) $this;
+      $expression = $this->getExpression();
+      if (!UrlHelper::isValid($expression, $this->absolute)) {
+        throw new InvalidExpressionException('Invalid URL.');
+      }
     }
     catch (\Exception $e) {
       throw new InvalidExpressionException($e->getMessage(), $e->getCode(), $e);
