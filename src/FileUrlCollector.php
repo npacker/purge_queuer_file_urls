@@ -29,9 +29,7 @@ class FileUrlCollector extends UrlCollectorBase {
         // ensure that all file-type fields are handled.
         if (is_a($field_type_class, FileItem::class, TRUE)) {
           foreach ($entity->{$field_name} as $field_item) {
-            /** @var \Drupal\purge_queuer_file_urls\FileUrlExpressionInterface $expression **/
-            $expression = $this->urlExpressionFactory->generateFromFile($field_item->entity);
-            yield $expression;
+            yield $this->urlExpressionFactory->generateFromFile($field_item->entity);
           }
         }
       }
