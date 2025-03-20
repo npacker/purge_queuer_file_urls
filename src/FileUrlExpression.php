@@ -30,7 +30,7 @@ class FileUrlExpression implements UrlExpressionInterface {
    *   The invalidation expression.
    */
   public function __construct(string $invalidation_type, Url $expression) {
-    $this->invalidatinoType = $invalidation_type;
+    $this->invalidationType = $invalidation_type;
     $this->expression = $expression;
   }
 
