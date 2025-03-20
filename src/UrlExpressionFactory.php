@@ -53,6 +53,7 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    */
   public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
     $absolute_urls = $this->config->get('absolute_urls');
+    /** @var \Drupal\Core\Url $url */
     $file_url = $this->fileUrlGenerator->generate($style->buildUri($path));
     if (empty($path)) {
       return new ImageStyleUrlExpression('regex', '^' . $file_url->setAbsolute($absolute_urls)->toString() . '/.*$');
