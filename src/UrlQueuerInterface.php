@@ -2,7 +2,7 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
-interface UrlsQueuerInterface {
+interface UrlQueuerInterface {
 
   /**
    * Invalidate the given array of file URLs.
@@ -10,9 +10,9 @@ interface UrlsQueuerInterface {
    * URLs should be absolute URLs as would be registered in the caching layer
    * and presented to the client.
    *
-   * @param array $urls
-   *   The array of file urls.
+   * @param iterable $urls
+   *   A generator that yields URL expressions.
    */
-  public function invalidateUrls(array $urls);
+  public function invalidateUrls(iterable $urls);
 
 }

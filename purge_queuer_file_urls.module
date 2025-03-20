@@ -6,28 +6,16 @@ use Drupal\Core\Entity\EntityInterface;
  * Implements hook_entity_update().
  */
 function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
-  $file_urls_collector = \Drupal::service('purge_queuer_file_urls.collector');
-  if ($urls = $file_urls_collector->collect($entity)) {
-    $file_urls_queuer = \Drupal::service('purge_queuer_file_urls.urls_queuer');
-    $file_urls_queuer->invalidateUrls($urls);
-  }
+  $file_url_collector = \Drupal::service('purge_queuer_file_urls.file_url_collector');
+  $url_queuer = \Drupal::service('purge_queuer_file_urls.url_queuer');
+  $url_queuer->invalidateUrls($file_url_collector->collect($entity));
 }
 
 /**
  * Implements hook_image_style_flush().
  */
 function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
-  $file_url_generator = \Drupal::service('file_url_generator');
-  $urls = [];
-  if ($path) {
-    $urls[] = $file_url_generator->generate($style->buildUri($path));
-  }
-  else {
-    $config = \Drupal::config('purge_queuer_file_urls.settings');
-    $urls[] = $file_url_generator->generate($style->buildUri(''))->setAbsolute($config->get('absolute_urls'))->toString() . '/*';
-  }
-  if ($urls) {
-    $wildcard_urls_queuer = \Drupal::service('purge_queuer_file_urls.wildcard_urls_queuer');
-    $wildcard_urls_queuer->invalidateUrls($urls);
-  }
+  $url_expression_factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
+  $expression = $url_expression_factory->generateFromStyle($style, $path ?? '');
+  $file_urls_queuer->invalidateUrls([$expression]);
 }

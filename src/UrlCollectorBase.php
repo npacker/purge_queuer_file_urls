@@ -10,7 +10,7 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 /**
  * Base class for URLs collector classes.
  */
-abstract class UrlsCollectorBase implements UrlsCollectorInterface {
+abstract class UrlCollectorBase implements UrlCollectorInterface {
 
   /**
    * The field type plugin manager.
@@ -27,11 +27,11 @@ abstract class UrlsCollectorBase implements UrlsCollectorInterface {
   protected $entityFieldManager;
 
   /**
-   * The file URL generator.
+   * The URL expression factory.
    *
-   * @var \Drupal\Core\File\FileUrlGeneratorInterface
+   * @var \Drupal\purge_queuer_file_urls\FileUrlExpressionFactoryInterface $urlExpressionFactory
    */
-  protected $fileUrlGenerator;
+  protected $urlExpressionFactory;
 
   /**
    * Construct a new EntityUpdateService object.
@@ -40,13 +40,17 @@ abstract class UrlsCollectorBase implements UrlsCollectorInterface {
    *   The field type plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
    *   The entity field manager.
-   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
-   *   The file URL generator.
+   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $url_expression_factory
+   *   The URL expression factory.
    */
-  public function __construct(FieldTypePluginManagerInterface $field_type_plugin_manager, EntityFieldManagerInterface $entity_field_manager, FileUrlGeneratorInterface $file_url_generator) {
+  public function __construct(
+    FieldTypePluginManagerInterface $field_type_plugin_manager,
+    EntityFieldManagerInterface $entity_field_manager,
+    UrlExpressionFactoryInterface $url_expression_factory
+  ) {
     $this->fieldTypePluginManager = $field_type_plugin_manager;
     $this->entityFieldManager = $entity_field_manager;
-    $this->fileUrlGenerator = $file_url_generator;
+    $this->urlExpressionFactory = $url_expression_factory;
   }
 
   /**

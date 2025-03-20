@@ -1,26 +1,33 @@
 services:
 
+  # PURGE_QUEUER_FILE_URLS.FILE_URL_EXPRESSION_FACTORY
+  #
+  # Provides a service object to create file url expressions.
+  purge_queuer_file_urls.url_expression_factory:
+    class: Drupal\purge_queuer_file_urls\UrlExpressionFactory
+    arguments: ['@file_url_generator', '@config.factory']
+
   # PURGE_QUEUER_FILE_URLS.URLS_QUEUER
   #
   # Provides a file urls purge queuer the connects to the necessary purge
   # services to perform URL invalidation.
-  purge_queuer_file_urls.urls_queuer:
-    class: Drupal\purge_queuer_file_urls\FileUrlsQueuer
+  purge_queuer_file_urls.url_queuer:
+    class: Drupal\purge_queuer_file_urls\FileUrlQueuer
     factory: [null, 'create']
-    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers', '@config.factory']
+    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers']
 
   # PURGE_QUEUER_FILE_URLS.WILDCARD_URLS_QUEUER
   #
   # Provides a file urls purge queuer the connects to the necessary purge
   # services to perform URL invalidation.
-  purge_queuer_file_urls.wildcard_urls_queuer:
-    class: Drupal\purge_queuer_file_urls\FileWildcardUrlsQueuer
+  purge_queuer_file_urls.wildcard_url_queuer:
+    class: Drupal\purge_queuer_file_urls\FileWildcardUrlQueuer
     factory: [null, 'create']
-    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers', '@config.factory']
+    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers']
 
   # PURGE_QUEUER_FILE_URLS.FILE_URLS_COLLECTOR
   #
   # Provides a service object to collect file urls.
-  purge_queuer_file_urls.collector:
-    class: Drupal\purge_queuer_file_urls\FileUrlsCollector
-    arguments: ['@plugin.manager.field.field_type', '@entity_field.manager', '@file_url_generator']
+  purge_queuer_file_urls.file_url_collector:
+    class: Drupal\purge_queuer_file_urls\FileUrlCollector
+    arguments: ['@plugin.manager.field.field_type', '@entity_field.manager', '@purge_queuer_file_urls.url_expression_factory']

@@ -17,7 +17,7 @@ use Drupal\purge\Plugin\Purge\Queuer\QueuerInterface;
  * determine if the queuer has been enabled by the user), any relevant settings,
  * and the invalidation type supported by the queuer.
  */
-abstract class UrlsQueuerBase implements UrlsQueuerInterface {
+abstract class UrlQueuerBase implements UrlQueuerInterface {
 
   /**
    * The purge invalidation factory service.
@@ -41,13 +41,6 @@ abstract class UrlsQueuerBase implements UrlsQueuerInterface {
   protected $purgeQueuerPlugin;
 
   /**
-   * The invalidation type to set for invalidated file urls.
-   *
-   * @var string
-   */
-  protected $invalidationType;
-
-  /**
    * A list of URLs that have already been invalidated this request.
    *
    * Used to prevent the invalidation of the same URL multiple times.
@@ -57,7 +50,7 @@ abstract class UrlsQueuerBase implements UrlsQueuerInterface {
   protected $invalidatedUrls = [];
 
   /**
-   * Constructs a new FileUrlsQueuer.
+   * Constructs a new FileUrlQueuer.
    *
    * @param \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface $purge_invalidation_factory
    *   The purge invalidation factory service.
@@ -65,31 +58,32 @@ abstract class UrlsQueuerBase implements UrlsQueuerInterface {
    *   The purge queue service.
    * @param \Drupal\purge\Plugin\Queuer\Queuer $purge_queuer_plugin
    *   The purge queuer plugin.
+   * @param \Drupal\purge_queuer_file_urls\UrlCollectorInterface $url_collector
+   *   The URL collector.
    * @param string $invalidation_type
    *   The invalidation type.
    */
-  public function __construct(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuerInterface $purge_queuer_plugin, $invalidation_type) {
+  public function __construct(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuerInterface $purge_queuer_plugin) {
     $this->purgeInvalidationFactory = $purge_invalidation_factory;
     $this->purgeQueue = $purge_queue;
     $this->purgeQueuerPlugin = $purge_queuer_plugin;
-    $this->invalidationType = $invalidation_type;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function invalidateUrls($urls) {
+  public function invalidateUrls(iterable $urls) {
     if ($this->purgeQueuerPlugin) {
       $invalidations = [];
-      /** @var \Drupal\Core\Url|string $url */
+      /** @var \Drupal\Core\Url $url */
       foreach ($urls as $url) {
         try {
           /** @var \Drupal\purge\Plugin\Purge\Invalidation\InvalidationInterface $invalidation */
-          $invalidation = $this->purgeInvalidationFactory->get($this->invalidationType, $url);
+          $invalidation = $url->getInvalidation($this->purgeInvalidationFactory);
           $key = (string) $invalidation;
           if (empty($this->invalidatedUrls[$key])) {
-            $invalidations[] = $invalidation;
             $this->invalidatedUrls[$key] = TRUE;
+            $invalidations[] = $invalidation;
           }
         }
         catch (TypeUnsupportedException $e) {
