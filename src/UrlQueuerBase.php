@@ -45,7 +45,7 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
    *
    * Used to prevent the invalidation of the same URL multiple times.
    *
-   * @var array
+   * @var bool[]
    */
   protected $invalidatedUrls = [];
 
@@ -75,11 +75,11 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
   public function invalidateUrls(iterable $urls) {
     if ($this->purgeQueuerPlugin) {
       $invalidations = [];
-      /** @var \Drupal\Core\Url $url */
-      foreach ($urls as $url) {
+      /** @var \Drupal\purge_queuer_file_urls\UrlExpressionInterface $expression */
+      foreach ($urls as $expression) {
         try {
           /** @var \Drupal\purge\Plugin\Purge\Invalidation\InvalidationInterface $invalidation */
-          $invalidation = $url->getInvalidation($this->purgeInvalidationFactory);
+          $invalidation = $expression->getInvalidation($this->purgeInvalidationFactory);
           $key = (string) $invalidation;
           if (empty($this->invalidatedUrls[$key])) {
             $this->invalidatedUrls[$key] = TRUE;
