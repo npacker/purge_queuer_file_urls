@@ -61,9 +61,8 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * {@inheritdoc}
    */
   public function generateFromFile(FileInterface $file) {
-    $file_uri = $file->getFileUri();
     /** @var \Drupal\Core\Url $url */
-    $file_url = $this->fileUrlGenerator->generate($file_uri);
+    $file_url = $this->fileUrlGenerator->generate($file->getFileUri());
     return new FileUrlExpression($this->absoluteUrls ? 'absoluteurl' : 'relativeurl', $file_url);
   }
 
@@ -71,11 +70,10 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * {@inheritdoc}
    */
   public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
-    $style_uri = $style->buildUri($path);
     /** @var \Drupal\Core\Url $url */
-    $file_url = $this->fileUrlGenerator->generate($style_uri)->setAbsolute($this->absoluteUrls)->toString();
+    $file_url = $this->fileUrlGenerator->generate($style->buildUri($path));
     if (empty($path)) {
-      return new ImageStyleUrlExpression('regex', '^' . $file_url . '/.*$');
+      return new ImageStyleUrlExpression('regex', '^' . $file_url->setAbsolute($this->absoluteUrls)->toString() . '\/.*$');
     }
     else {
       return new FileUrlExpression($this->absoluteUrls ? 'absoluteurl' : 'relativeurl', $file_url);
@@ -89,11 +87,10 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
     $image_uri = $image->getFileUri();
     $image_styles = ImageStyle::loadMultiple();
     foreach ($image_styles as $image_style) {
-      $image_style_uri = $image_style->buildUri($image_uri);
-      $image_style_url = $this->fileUrlGenerator->generate($image_style_uri);
+      $image_style_url = $this->fileUrlGenerator->generate($image_style->buildUri($image_uri));
       yield new FileUrlExpression($this->absoluteUrls ? 'absoluteurl' : 'relativeurl', $image_style_url);
       // $image_style_url = $this->fileUrlGenerator->generate($image_style_uri)->setAbsolute($this->absoluteUrls)->toString();
-      // $regex = preg_replace('/(?<=\/)' . preg_quote($image_style->id(), '/') . '(?=\/)/', '.*', $image_style_url);
+      // $regex = '^' . preg_replace('/(?<=\/)' . preg_quote($image_style->id(), '/') . '(?=\/)/', '.*', $image_style_url) . '$';
       // yield new ImageStyleUrlExpression('regex', $regex);
     }
   }
