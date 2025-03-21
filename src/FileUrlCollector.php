@@ -16,15 +16,11 @@ class FileUrlCollector extends UrlCollectorBase {
    */
   public function collect(EntityInterface $entity) {
     if ($entity instanceof FieldableEntityInterface) {
-      $entity_type_id = $entity->getEntityTypeId();
-      $bundle = $entity->bundle();
-      $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
+      $field_definitions = $this->getFieldDefinitions($entity);
       $fields = $entity->getFields();
-      /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_defintition */
-      foreach (array_intersect_key($field_definitions, $fields) as $field_name => $field_defintition) {
-        $field_type_id = $field_defintition->getType();
-        $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
-        $field_type_class = $field_type_definition['class'];
+      /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
+      foreach (array_intersect_key($field_definitions, $fields) as $field_name => $field_definition) {
+        $field_type_class = $this->getFieldTypeClass($field_definition);
         // Checking if the field type class is a sublcass of FileItem will
         // ensure that all file-type fields are handled.
         if (is_a($field_type_class, FileItem::class, TRUE)) {

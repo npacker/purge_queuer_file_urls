@@ -4,7 +4,7 @@ namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 
-class ImageStyleUrlExpression implements FileUrlExpressionInterface {
+class ImageStyleUrlExpression implements UrlExpressionInterface {
 
   /**
    * The invalidation type plugin.
@@ -36,7 +36,7 @@ class ImageStyleUrlExpression implements FileUrlExpressionInterface {
   /**
    * {@inheritdoc}
    */
-  public function getInvalidation(InvalidationServiceInterface $purge_invalidation_factory) {
+  public function getInvalidation(InvalidationsServiceInterface $purge_invalidation_factory) {
     return $purge_invalidation_factory->get($this->invalidationType, $this->expression);
   }
 

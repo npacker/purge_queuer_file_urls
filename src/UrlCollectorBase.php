@@ -4,8 +4,8 @@ namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
-use Drupal\Core\File\FileUrlGeneratorInterface;
 
 /**
  * Base class for URLs collector classes.
@@ -57,5 +57,35 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
    * {@inheritdoc}
    */
   abstract public function collect(EntityInterface $entity);
+
+  /**
+   * Get the field definitions for the given entity.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   The updated entity.
+   *
+   * @return \Drupal\Core\Field\FieldDefinitionInterface[]
+   *   The array of field definitions.
+   */
+  protected function getFieldDefinitions(EntityInterface $entity) {
+    $entity_type_id = $entity->getEntityTypeId();
+    $bundle = $entity->bundle();
+    return $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
+  }
+
+  /**
+   * Get the field type class for the given field definition.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   *
+   * @return string
+   *   The class name.
+   */
+  protected function getFieldTypeClass(FieldDefinitionInterface $field_definition) {
+    $field_type_id = $field_definition->getType();
+    $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
+    return $field_type_definition['class'];
+  }
 
 }

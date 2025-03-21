@@ -4,7 +4,6 @@ namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\image\Entity\ImageStyle;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
@@ -16,35 +15,21 @@ class ImageStyleUrlCollector extends UrlCollectorBase {
    * {@inheritdoc}
    */
   public function collect(EntityInterface $entity) {
-    $urls = [];
-    if (is_a($entity, FieldableEntityInterface::class)) {
-      $entity_type_id = $entity->getEntityTypeId();
-      $bundle = $entity->bundle();
-      $entity_field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
-      $image_styles = ImageStyle::loadMultiple();
+    if ($entity instanceof FieldableEntityInterface) {
+      $field_definitions = $this->getFieldDefinitions($entity);
+      $fields = $entity->getFields();
       /** @var \Drupal\Core\Field\FieldDefinitionInterface $field_definition */
-      foreach ($entity_field_definitions as $entity_field_definition) {
-        $field_type_id = $entity_field_definition->getType();
-        $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
-        $field_type_class = $field_type_definition['class'];
+      foreach (array_intersect_key($field_definitions, $fields) as $field_name => $field_definition) {
+        $field_type_class = $this->getFieldTypeClass($field_definition);
+        // Checking if the field type class is a sublcass of ImageItem will
+        // ensure that all image-type fields are handled.
         if (is_a($field_type_class, ImageItem::class, TRUE)) {
-          foreach ($entity->{$entity_field_definition->getName()} as $field_item) {
-            $image_style_urls = [];
-            /** @var \Drupal\file\FileInterface */
-            $file_uri = $field_item->entity->getFileUri();
-            /** @var \Drupal\image\Entity\ImageStyle $image_style */
-            foreach ($image_styles as $image_style) {
-              $image_style_uri = $image_style->buildUri($file_uri);
-              $uri_regex = preg_replace('/(?<=\/)' . preg_quote($image_style->id(), '/') . '(?=\/)/', '.*', $image_style_uri);
-              /** @var \Drupal\Core\Url */
-              $image_style_urls[$uri_regex] = $this->fileUrlGenerator->generate($uri_regex);
-            }
-            $urls = array_merge($urls, array_values($image_style_urls));
+          foreach ($entity->{$field_name} as $field_item) {
+            yield from $this->urlExpressionFactory->generateFromImage($field_item->entity);
           }
         }
       }
     }
-    return $urls;
   }
 
 }
