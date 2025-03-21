@@ -8,12 +8,21 @@ services:
     factory: [null, 'create']
     arguments: ['@file_url_generator', '@config.factory']
 
-  # PURGE_QUEUER_FILE_URLS.URLS_QUEUER
+  # PURGE_QUEUER_FILE_URLS.FILE_URL_QUEUER
   #
   # Provides a file urls purge queuer the connects to the necessary purge
   # services to perform URL invalidation.
-  purge_queuer_file_urls.url_queuer:
+  purge_queuer_file_urls.file_url_queuer:
     class: Drupal\purge_queuer_file_urls\FileUrlQueuer
+    factory: [null, 'create']
+    arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers']
+
+  # PURGE_QUEUER_FILE_URLS.IMAGE_STYLE_URL_QUEUER
+  #
+  # Provides a file urls purge queuer the connects to the necessary purge
+  # services to perform URL invalidation.
+  purge_queuer_file_urls.image_style_url_queuer:
+    class: Drupal\purge_queuer_file_urls\ImageStyleUrlQueuer
     factory: [null, 'create']
     arguments: ['@purge.invalidation.factory', '@purge.queue', '@purge.queuers']
 
