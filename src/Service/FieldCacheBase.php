@@ -53,7 +53,7 @@ abstract class FieldCacheBase {
   public function __construct(CacheBackendInterface $cache, EntityFieldManagerInterface $entity_field_manager, FieldTypePluginManagerInterface $field_type_plugin_manager) {
     $this->cache = $cache;
     $this->entityFieldManager = $entity_field_manager;
-    $this->field_typePluginManager = $field_type_plugin_manager;
+    $this->fieldTypePluginManager = $field_type_plugin_manager;
   }
 
   /**
@@ -101,7 +101,7 @@ abstract class FieldCacheBase {
       foreach ($field_definitions as $field_name => $field_definition) {
         $field_type_id = $field_definition->getType();
         $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
-        $field_type_class = $field_type_defintion['class'];
+        $field_type_class = $field_type_definition['class'];
         if (is_a($field_type_class, $this->type, TRUE)) {
           $fields[$field_name] = $field_definition;
         }
