@@ -2,30 +2,21 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
+use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\file\FileInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\image\ImageStyleInterface;
+use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\DerivativeExpressionStrategyInterface;
+use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\FileExpressionStrategyInterface;
+use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ImageExpressionStrategyInterface;
+use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\StyleExpressionStrategyInterface;
 
 /**
  * Factory for building URL expresisons.
  */
 class UrlExpressionFactory implements UrlExpressionFactoryInterface {
-
-  /**
-   * The file URL generator.
-   *
-   * @var \Drupal\Core\File\FileUrlGeneratorInterface
-   */
-  protected $fileUrlGenerator;
-
-  /**
-   * Whether to use absolute or relative URLs.
-   *
-   * @var bool
-   */
-  protected $absoluteUrls;
 
   /**
    * Create a new UrlExpressionFactory instance.
@@ -35,10 +26,14 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * @param bool $absolute_urls
    *   Whether to use absolute or relative URLs.
    */
-  public function __construct(FileUrlGeneratorInterface $file_url_generator, bool $absolute_urls) {
-    $this->fileUrlGenerator = $file_url_generator;
-    $this->absoluteUrls = $absolute_urls;
-  }
+  public function __construct(
+    protected readonly FileUrlGeneratorInterface $fileUrlGenerator,
+    protected readonly bool $absoluteUrls,
+    protected readonly FileExpressionStrategyInterface $fileExpressionStrategy,
+    protected readonly ImageExpressionStrategyInterface $imageExpressionStrategy,
+    protected readonly DerivativeExpressionStrategyInterface $derivativeExpressionStrategy,
+    protected readonly StyleExpressionStrategyInterface $styleExpressionStrategy
+  ) {}
 
   /**
    * Factory method for UrlExpressionFactory instances.
@@ -47,13 +42,23 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    *   The file URL generator.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
+   *   The expression strategy plugin manager.
    */
-  public static function create(FileUrlGeneratorInterface $file_url_generator, ConfigFactoryInterface $config_factory) {
+  public static function create(FileUrlGeneratorInterface $file_url_generator, ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls');
+    $file_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
+    $image_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
+    $derivative_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
+    $style_expression_strategy = $plugin_manager->createInstance('regex');
     return new static(
       $file_url_generator,
-      $absolute_urls
+      $absolute_urls,
+      $file_expression_strategy,
+      $image_expression_strategy,
+      $derivative_expression_strategy,
+      $style_expression_strategy
     );
   }
 
@@ -61,38 +66,25 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * {@inheritdoc}
    */
   public function generateFromFile(FileInterface $file) {
-    /** @var \Drupal\Core\Url $url */
-    $file_url = $this->fileUrlGenerator->generate($file->getFileUri());
-    return new FileUrlExpression($this->absoluteUrls ? 'absoluteurl' : 'relativeurl', $file_url);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
-    /** @var \Drupal\Core\Url $url */
-    $file_url = $this->fileUrlGenerator->generate($style->buildUri($path));
-    if (empty($path)) {
-      return new ImageStyleUrlExpression('regex', '^' . $file_url->setAbsolute($this->absoluteUrls)->toString() . '\/.*$');
-    }
-    else {
-      return new FileUrlExpression($this->absoluteUrls ? 'absoluteurl' : 'relativeurl', $file_url);
-    }
+    return new FileUrlExpression($this->fileExpressionStrategy->getPluginId(), $this->fileExpressionStrategy->generateFileExpression($file));
   }
 
   /**
    * {@inheritdoc}
    */
   public function generateFromImage(FileInterface $image) {
-    $image_uri = $image->getFileUri();
-    $image_styles = ImageStyle::loadMultiple();
-    foreach ($image_styles as $image_style) {
-      $image_style_url = $this->fileUrlGenerator->generate($image_style->buildUri($image_uri));
-      yield new FileUrlExpression($this->absoluteUrls ? 'absoluteurl' : 'relativeurl', $image_style_url);
-      // $image_style_url = $this->fileUrlGenerator->generate($image_style_uri)->setAbsolute($this->absoluteUrls)->toString();
-      // $regex = '^' . preg_replace('/(?<=\/)' . preg_quote($image_style->id(), '/') . '(?=\/)/', '.*', $image_style_url) . '$';
-      // yield new ImageStyleUrlExpression('regex', $regex);
+    foreach ($this->imageExpressionStrategy->generateImageExpression($image) as $expression) {
+      yield new FileUrlExpression($this->imageExpressionStrategy->getPluginId(), $expression);
     }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
+    return empty($path) ?
+      new ImageStyleUrlExpression($this->styleExpressionStrategy->getPluginId(), $this->styleExpressionStrategy->generateStyleExpression($style)) :
+      new FileUrlExpression($this->derivativeExpressionStrategy->getPluginId(), $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path));
   }
 
 }

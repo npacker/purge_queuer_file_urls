@@ -1,12 +1,19 @@
 services:
 
+  # PLUGIN.MANAGER.EXPRESSION_STRATEGY
+  #
+  # Plugin manager for expression strategy plugins.
+  plugin.manager.expression_strategy:
+    class: Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ExpressionStrategyManager
+    parent: default_plugin_manager
+
   # PURGE_QUEUER_FILE_URLS.FILE_URL_EXPRESSION_FACTORY
   #
   # Provides a service object to create file url expressions.
   purge_queuer_file_urls.url_expression_factory:
     class: Drupal\purge_queuer_file_urls\UrlExpressionFactory
     factory: [null, 'create']
-    arguments: ['@file_url_generator', '@config.factory']
+    arguments: ['@file_url_generator', '@config.factory', '@plugin.manager.expression_strategy']
 
   # PURGE_QUEUER_FILE_URLS.FILE_URL_QUEUER
   #

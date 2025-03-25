@@ -6,12 +6,21 @@ use Drupal\file\FileInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\image\ImageStyleInterface;
 
-abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implements FileExpressionStrategyInterface, ImageExpressionStrategyInterface, DerivatriveExpressionStrategyInterface {
+/**
+ * Base plugin class for URL expression strategies.
+ */
+abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implements FileExpressionStrategyInterface, ImageExpressionStrategyInterface, DerivativeExpressionStrategyInterface {
 
+  /**
+   * {@inheritdoc}
+   */
   public function generateFileExpression(FileInterface $file) {
     return $this->fileUrlGenerator->generate($file->getFileUri());
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function generateImageExpression(FileInterface $image) {
     $styles = ImageStyle::loadMultiple();
     foreach ($styles as $style) {
@@ -19,7 +28,10 @@ abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implemen
     }
   }
 
-  public function generateDerivativeExpresison(ImageStyleInterface $style, string $path) {
+  /**
+   * {@inheritdoc}
+   */
+  public function generateDerivativeExpression(ImageStyleInterface $style, string $path) {
     return $this->fileUrlGenerator->generate($style->buildUri($path));
   }
 
