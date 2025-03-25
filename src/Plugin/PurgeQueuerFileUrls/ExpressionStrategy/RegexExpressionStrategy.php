@@ -1,0 +1,43 @@
+<?php
+
+namespace Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy;
+
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\file\FileInterface;
+use Drupal\image\ImageStyleInterface;
+use Drupal\purge_queuer_file_urls\Attribute\ExpressionStrategy;
+
+#[ExpressionStrategy(
+  id: 'regex',
+  label: new TranslatableMarkup('Regular Expression'),
+  supports: [
+    'image',
+    'style',
+  ],
+)]
+class RegexExpressionStrategy extends ExpressionStrategyBase implements StyleExpressionStrategyInterface, ImageExpressionStrategyInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateImageExpression(FileInterface $image) {
+    $image_uri = $image->getFileUri();
+    $styles = ImageStyle::loadMultiple();
+    foreach ($styles as $style) {
+      $style_url = $this->fileUrlGenerator->generate($style->buildUri($image_uri));
+      $haystack = $style_url->setAbsolute($this->absoluteUrls)->toString();
+      $replacement = '.*';
+      $needle = preg_quote($style->id(), '/');
+      yield '^' . preg_replace('/(?<=\/)' . $needle . '(?=\/)/', $replacement, $haystack) . '$';
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateStyleExpression(ImageStyleInterface $style) {
+    $url = $this->fileUrlGenerator->generate($style->buildUri(''));
+    return '^' . $url->setAbsolute($this->absoluteUrls)->toString() . '\/.*$';
+  }
+
+}
