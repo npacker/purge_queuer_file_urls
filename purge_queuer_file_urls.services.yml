@@ -13,7 +13,7 @@ services:
   purge_queuer_file_urls.url_expression_factory:
     class: Drupal\purge_queuer_file_urls\UrlExpressionFactory
     factory: [null, 'create']
-    arguments: ['@file_url_generator', '@config.factory', '@plugin.manager.expression_strategy']
+    arguments: ['@config.factory', '@plugin.manager.expression_strategy']
 
   # PURGE_QUEUER_FILE_URLS.FILE_URL_QUEUER
   #

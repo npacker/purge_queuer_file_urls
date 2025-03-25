@@ -4,9 +4,7 @@ namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\file\FileInterface;
-use Drupal\image\Entity\ImageStyle;
 use Drupal\image\ImageStyleInterface;
 use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\DerivativeExpressionStrategyInterface;
 use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\FileExpressionStrategyInterface;
@@ -14,20 +12,25 @@ use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\
 use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\StyleExpressionStrategyInterface;
 
 /**
- * Factory for building URL expresisons.
+ * Factory for building URL expressions.
  */
 class UrlExpressionFactory implements UrlExpressionFactoryInterface {
 
   /**
    * Create a new UrlExpressionFactory instance.
    *
-   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
-   *   The file URL generator.
    * @param bool $absolute_urls
    *   Whether to use absolute or relative URLs.
+   * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\DerivativeExpressionStrategyInterface $fileExpressionStrategy
+   *   The expression generation strategy to use for files.
+   * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\FileExpressionStrategyInterface $imageExpressionStrategy
+   *   The expression generation strategy to use for images.
+   * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ImageExpressionStrategyInterface $derivativeExpressionStrategy
+   *   The expression generation strategy to use for image derivatives.
+   * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\StyleExpressionStrategyInterface $styleExpressionStrategy
+   *   The expression generation strategy to use for image styles.
    */
   public function __construct(
-    protected readonly FileUrlGeneratorInterface $fileUrlGenerator,
     protected readonly bool $absoluteUrls,
     protected readonly FileExpressionStrategyInterface $fileExpressionStrategy,
     protected readonly ImageExpressionStrategyInterface $imageExpressionStrategy,
@@ -38,14 +41,12 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
   /**
    * Factory method for UrlExpressionFactory instances.
    *
-   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
-   *   The file URL generator.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
    * @param \Drupal\Component\Plugin\PluginManagerInterface $plugin_manager
    *   The expression strategy plugin manager.
    */
-  public static function create(FileUrlGeneratorInterface $file_url_generator, ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
+  public static function create(ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls');
     $file_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
@@ -53,7 +54,6 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
     $derivative_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
     $style_expression_strategy = $plugin_manager->createInstance('regex');
     return new static(
-      $file_url_generator,
       $absolute_urls,
       $file_expression_strategy,
       $image_expression_strategy,
