@@ -20,5 +20,6 @@ function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
 function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
   $url_expression_factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
   $expression = $url_expression_factory->generateFromStyle($style, $path ?? '');
-  $file_urls_queuer->invalidateUrls([$expression]);
+  $file_url_queuer = \Drupal::service('purge_queuer_file_urls.file_url_queuer');
+  $file_url_queuer->invalidateUrls([$expression]);
 }
