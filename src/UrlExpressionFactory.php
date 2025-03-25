@@ -19,8 +19,6 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
   /**
    * Create a new UrlExpressionFactory instance.
    *
-   * @param bool $absolute_urls
-   *   Whether to use absolute or relative URLs.
    * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\DerivativeExpressionStrategyInterface $fileExpressionStrategy
    *   The expression generation strategy to use for files.
    * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\FileExpressionStrategyInterface $imageExpressionStrategy
@@ -31,7 +29,6 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    *   The expression generation strategy to use for image styles.
    */
   public function __construct(
-    protected readonly bool $absoluteUrls,
     protected readonly FileExpressionStrategyInterface $fileExpressionStrategy,
     protected readonly ImageExpressionStrategyInterface $imageExpressionStrategy,
     protected readonly DerivativeExpressionStrategyInterface $derivativeExpressionStrategy,
