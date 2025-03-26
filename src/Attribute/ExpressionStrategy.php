@@ -19,8 +19,8 @@ class ExpressionStrategy extends Plugin {
    *
    * @param string $id
    *   The plugin ID.
-   * @param \Drupal\Core\StringTranslation\TranslatableMarkup|null $label
-   *   (optional) The human-readable name of the plugin.
+   * @param \Drupal\Core\StringTranslation\TranslatableMarkup $label
+   *   The human-readable name of the plugin.
    * @param \Drupal\Core\StringTranslation\TranslatableMarkup|null $description
    *   (optional) A short description of the plugin.
    * @param string[] $supports
@@ -28,7 +28,7 @@ class ExpressionStrategy extends Plugin {
    */
   public function __construct(
     public readonly string $id,
-    public readonly ?TranslatableMarkup $label = NULL,
+    public readonly TranslatableMarkup $label,
     public readonly ?TranslatableMarkup $description = NULL,
     public readonly array $supports = [],
   ) {}

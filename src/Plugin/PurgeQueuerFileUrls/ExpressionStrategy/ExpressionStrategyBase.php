@@ -7,6 +7,12 @@ use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+/**
+ * Base class for expression strategy plugins.
+ *
+ * Plugins that do not extend this class heirarchy will need to impelement the
+ * ExpressionStrategyInterface explicitely.
+ */
 abstract class ExpressionStrategyBase extends PluginBase implements ExpressionStrategyInterface, ContainerFactoryPluginInterface {
 
   /**

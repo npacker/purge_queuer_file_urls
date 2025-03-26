@@ -15,7 +15,7 @@ use Drupal\purge_queuer_file_urls\Attribute\ExpressionStrategy;
     'style',
   ],
 )]
-class RegexExpressionStrategy extends ExpressionStrategyBase implements StyleExpressionStrategyInterface, ImageExpressionStrategyInterface {
+class RegexExpressionStrategy extends ExpressionStrategyBase implements ImageExpressionStrategyInterface, StyleExpressionStrategyInterface {
 
   /**
    * {@inheritdoc}

@@ -45,17 +45,11 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    */
   public static function create(ConfigFactoryInterface $config_factory, PluginManagerInterface $plugin_manager) {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
-    $absolute_urls = $config->get('absolute_urls');
-    $file_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
-    $image_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
-    $derivative_expression_strategy = $plugin_manager->createInstance($absolute_urls ? 'absoluteurl' : 'relativeurl');
-    $style_expression_strategy = $plugin_manager->createInstance('regex');
     return new static(
-      $absolute_urls,
-      $file_expression_strategy,
-      $image_expression_strategy,
-      $derivative_expression_strategy,
-      $style_expression_strategy
+      $plugin_manager->createInstance($config->get('file_expression_strategy')),
+      $plugin_manager->createInstance($config->get('image_expression_strategy')),
+      $plugin_manager->createInstance($config->get('derivative_expression_strategy')),
+      $plugin_manager->createInstance($config->get('style_expression_strategy'))
     );
   }
 
@@ -63,7 +57,10 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * {@inheritdoc}
    */
   public function generateFromFile(FileInterface $file) {
-    return new FileUrlExpression($this->fileExpressionStrategy->getPluginId(), $this->fileExpressionStrategy->generateFileExpression($file));
+    return new FileUrlExpression(
+      $this->fileExpressionStrategy->getPluginId(),
+      $this->fileExpressionStrategy->generateFileExpression($file)
+    );
   }
 
   /**
@@ -80,8 +77,14 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    */
   public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
     return empty($path) ?
-      new ImageStyleUrlExpression($this->styleExpressionStrategy->getPluginId(), $this->styleExpressionStrategy->generateStyleExpression($style)) :
-      new FileUrlExpression($this->derivativeExpressionStrategy->getPluginId(), $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path));
+      new ImageStyleUrlExpression(
+        $this->styleExpressionStrategy->getPluginId(),
+        $this->styleExpressionStrategy->generateStyleExpression($style)
+      ) :
+      new FileUrlExpression(
+        $this->derivativeExpressionStrategy->getPluginId(),
+        $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path)
+      );
   }
 
 }
