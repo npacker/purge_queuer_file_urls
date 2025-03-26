@@ -129,14 +129,14 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $form['url_options']['image_expression_strategy'] = [
       '#type' => 'select',
       '#title' => $this->t('Images'),
-      '#description' => $this->t('Handles invalidation of individual image files as well as any image style derivatives.'),
+      '#description' => $this->t('Handles invalidation of individual image files as well as any image style derivatives for that image.'),
       '#options' => $image_expression_strategy_options,
       '#default_value' => $config->get('image_expression_strategy'),
     ];
     $form['url_options']['derivative_expression_strategy'] = [
       '#type' => 'select',
       '#title' => $this->t('Image derivatives'),
-      '#description' => $this->t('Handles invalidation of individual image style derivatives for that image.'),
+      '#description' => $this->t('Handles invalidation of individual image style derivatives for an image style.'),
       '#options' => $derivative_expression_strategy_options,
       '#default_value' => $config->get('derivative_expression_strategy'),
     ];
