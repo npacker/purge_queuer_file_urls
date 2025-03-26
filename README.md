@@ -11,9 +11,11 @@ This includes when an image style is updated and saved.
 Out of the box, the invalidation expression for files will be the URL of the
 file. These invalidations will be added to whatever queue plugin is currently
 active. A Purger must be configured to handle invalidations of the appropriate
-type. This module provides several invalidation types:
+type. This module provides several suitable invalidation type plugins that
+support likely use-cases.
 
-- Url (relative)
-- Url (absolute)
-- Url (wildcard, relative)
-- Url (wildcard, absolute)
+## Extending
+The method by which invalidation expressions are generated can be modified or
+extended by interacting with the ExpressionStrategy plugin system included with
+this module. This allows site developers to control exactly how files are
+invalidated based on the requirements of their external caching layer.
