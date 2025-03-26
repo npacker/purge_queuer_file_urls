@@ -188,11 +188,12 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   public function submitFormSuccess(array &$form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
-    $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
     $config->set('file_expression_strategy', $form_state->getValue('file_expression_strategy'));
     $config->set('image_expression_strategy', $form_state->getValue('image_expression_strategy'));
     $config->set('derivative_expression_strategy', $form_state->getValue('derivative_expression_strategy'));
     $config->set('style_expression_strategy', $form_state->getValue('style_expression_strategy'));
+    $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
+    $config->set('entity_types', $form_state->getValue('entity_types'));
     $config->save();
   }
 
