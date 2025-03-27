@@ -5,7 +5,7 @@ namespace Drupal\purge_queuer_file_urls;
 use Drupal\Core\Url;
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 
-class FileUrlExpression implements UrlExpressionInterface {
+class UrlExpression implements UrlExpressionInterface {
 
   /**
    * The invalidation type plugin.
@@ -22,7 +22,7 @@ class FileUrlExpression implements UrlExpressionInterface {
   protected $expression;
 
   /**
-   * Creates a new FileUrlExpression object.
+   * Creates a new UrlExpression object.
    *
    * @param string $invalidation_type
    *   The invalidation plugin type associated with this expression.
