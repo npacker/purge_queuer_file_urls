@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
+use Drupal\file\Plugin\Field\FieldType\FileItem;
 
 /**
  * Base class for URLs collector classes.
@@ -75,16 +76,34 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
   /**
    * Get the field type class for the given field definition.
    *
+   * @param string $class_name
+   *   The field type class name.
    * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
    *   The field definition.
    *
-   * @return string
-   *   The class name.
+   * @return bool
+   *   Whether the field definition has the given class.
    */
-  protected function getFieldTypeClass(FieldDefinitionInterface $field_definition) {
+  protected function hasFieldTypeClass(string $class_name, FieldDefinitionInterface $field_definition) {
     $field_type_id = $field_definition->getType();
     $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
-    return $field_type_definition['class'];
+    $field_type_class = $field_type_definition['class'] ?? NULL;
+    return $field_type_class && is_a($field_type_class, $class_name, TRUE);
+  }
+
+  /**
+   * Determine if the URI scheme for a file field should be included.
+   *
+   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
+   *   The field definition.
+   *
+   * @return bool
+   *   Whether the scheme configured on the field definition is included for
+   *   collection.
+   */
+  protected function hasIncludedScheme(FieldDefinitionInterface $field_definition) {
+    $uri_scheme = $field_definition->getSetting('uri_scheme');
+    return $this->fileSchemes && in_array($uri_scheme, $this->fileSchemes);
   }
 
 }
