@@ -1,0 +1,101 @@
+absolute_urls: 0
+file_expression_strategy: relativeurl
+image_expression_strategy: relativeurl
+derivative_expression_strategy: relativeurl
+style_expression_strategy: regex
+entity_types:
+  block_content:
+    bundles:
+      accordion: 0
+      announcement: 0
+      banner: 0
+      basic: 0
+      beyond_basics_block: 0
+      button: 0
+      card: 0
+      content_switcher: 0
+      countdown: 0
+      donut_chart: 0
+      headline: 0
+      image: 0
+      image_button: 0
+      image_with_description: 0
+      page_menu: 0
+      quote: 0
+      schedule: 0
+      statistics: 0
+      testimonial: 0
+      white_space: 0
+  content_moderation_state:
+    bundles:
+      content_moderation_state: 0
+  crop:
+    bundles:
+      directory_listing: 0
+      focal_point: 0
+      l_header: 0
+      l_hero: 0
+      s_header: 0
+      s_hero: 0
+  feeds_subscription:
+    bundles:
+      feeds_subscription: 0
+  feeds_import_log:
+    bundles:
+      feeds_import_log: 0
+  file:
+    bundles:
+      file: 0
+  mailchimp_campaign:
+    bundles:
+      mailchimp_campaign: 0
+  media:
+    bundles:
+      able_player_caption: 0
+      document: 0
+      image: 0
+      local_video: 0
+      web_video: 0
+  menu_link_content:
+    bundles:
+      menu_link_content: 0
+  node:
+    bundles:
+      article: 0
+      event: 0
+      page: 0
+      registration: 0
+  path_alias:
+    bundles:
+      path_alias: 0
+  redirect:
+    bundles:
+      redirect: 0
+  shortcut:
+    bundles:
+      default: 0
+  taxonomy_term:
+    bundles:
+      degree: 0
+      tags: 0
+  user:
+    bundles:
+      user: 0
+  webform_submission:
+    bundles:
+      contact: 0
+  emergency_alert:
+    bundles:
+      emergency_alert: 0
+  paragraph:
+    bundles:
+      accordion_item: 0
+      content_switcher_item: 0
+      schedule_item: 0
+      statistic: 0
+file_schemes:
+  public: public
+  assets: 0
+  temporary: 0
+  translations: 0
+  private: 0
