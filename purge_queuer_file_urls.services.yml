@@ -44,7 +44,6 @@ services:
     arguments:
       - '@plugin.manager.field.field_type'
       - '@entity_field.manager'
-      - '@stream_wrapper_manager'
       - '@purge_queuer_file_urls.url_expression_factory'
     configurator: ['@Drupal\purge_queuer_file_urls\UrlCollectorConfigurator', 'configure']
 

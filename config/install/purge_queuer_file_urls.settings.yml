@@ -1,9 +1,9 @@
-absolute_urls: 0
+absolute_urls: false
 file_expression_strategy: relativeurl
 image_expression_strategy: relativeurl
 derivative_expression_strategy: relativeurl
 style_expression_strategy: regex
-entity_types: {}
+entity_types: { }
 file_schemes:
   public: public
   assets: 0

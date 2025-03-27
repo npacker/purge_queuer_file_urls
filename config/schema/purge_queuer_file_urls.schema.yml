@@ -1,0 +1,61 @@
+purge_queuer_file_urls.settings:
+  type: mapping
+  mapping:
+    absolute_urls:
+      type: boolean
+      label: 'Absolute URLs'
+    file_expression_strategy:
+      type: string
+      label: 'File Expression Strategy'
+      constraints:
+        PluginExists:
+          manager: plugin.manager.expression_strategy
+          interface: 'Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ExpressionStrategyInterface'
+    image_expression_strategy:
+      type: string
+      label: 'Image Expression Strategy'
+      constraints:
+        PluginExists:
+          manager: plugin.manager.expression_strategy
+          interface: 'Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ExpressionStrategyInterface'
+    derivative_expression_strategy:
+      type: string
+      label: 'Derivative Expression Strategy'
+      constraints:
+        PluginExists:
+          manager: plugin.manager.expression_strategy
+          interface: 'Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ExpressionStrategyInterface'
+    style_expression_strategy:
+      type: string
+      label: 'Style Expression Strategy'
+      constraints:
+        PluginExists:
+          manager: plugin.manager.expression_strategy
+          interface: 'Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ExpressionStrategyInterface'
+    entity_types:
+      type: sequence
+      label: 'Entity Types'
+      sequence:
+        type: mapping
+        mapping:
+          bundles:
+            type: sequence
+            sequence:
+              type: string
+              constraints:
+                FullyValidatable: ~
+            constraints:
+              FullyValidatable: ~
+      constraints:
+        FullyValidatable: ~
+    file_schemes:
+      type: sequence
+      label: 'File Schemes'
+      orderby: key
+      sequence:
+        type: string
+        constraints:
+          FullyValidatable: ~
+      constraints:
+        FullyValidatable: ~
+

@@ -7,7 +7,6 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
-use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\file\Plugin\Field\FieldType\FileItem;
 
 /**
@@ -29,8 +28,6 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
    *   The field type plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
-   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $streamWrapperManager
-   *   The stream wrapper manager.
    * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
    *   The URL expression factory.
    * @param string[] $fileSchemes
@@ -39,7 +36,6 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
   public function __construct(
     protected FieldTypePluginManagerInterface $fieldTypePluginManager,
     protected EntityFieldManagerInterface $entityFieldManager,
-    protected StreamWrapperManagerInterface $streamWrapperManager,
     protected UrlExpressionFactoryInterface $urlExpressionFactory,
   ) {}
 
