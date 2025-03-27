@@ -28,15 +28,10 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
    *   The field type plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
-   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
-   *   The URL expression factory.
-   * @param string[] $fileSchemes
-   *   The file schemes to include for collection.
    */
   public function __construct(
     protected FieldTypePluginManagerInterface $fieldTypePluginManager,
     protected EntityFieldManagerInterface $entityFieldManager,
-    protected UrlExpressionFactoryInterface $urlExpressionFactory,
   ) {}
 
   /**
