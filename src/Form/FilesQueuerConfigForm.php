@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\purge_ui\Form\QueuerConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -37,11 +38,14 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   protected $pluginManager;
 
+  protected $streamWrapperManager;
+
   public static function create(ContainerInterface $container) {
     return parent::create($container)
       ->setEntityTypeManager($container->get('entity_type.manager'))
       ->setEntityTypeBundleInfo($container->get('entity_type.bundle.info'))
-      ->setPluginManager($container->get('plugin.manager.expression_strategy'));
+      ->setPluginManager($container->get('plugin.manager.expression_strategy'))
+      ->setStreamWrapperManager($container->get('stream_wrapper_manager'));
   }
 
   /**
@@ -78,6 +82,16 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   }
 
   /**
+   * Set the stream wrapper manager.
+   *
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   */
+  public function setStreamWrapperManager(StreamWrapperManagerInterface $stream_wrapper_manager) {
+    $this->streamWrapperManager = $stream_wrapper_manager;
+    return $this;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getFormId() {
@@ -96,6 +110,18 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
+    $form['file_options'] = [
+      '#type' => 'fieldset',
+      '#title' => 'File Scheme Options',
+      '#description' => $this->t('Include specific stream wrappers for invalidation.'),
+    ];
+    $scheme_options = $this->streamWrapperManager->getNames();
+    $form['file_options']['file_schemes'] = [
+      '#type' => 'checkboxes',
+      '#multiple' => TRUE,
+      '#options' => $scheme_options,
+      '#default_value' => $config->get('file_schemes') ?? [],
+    ];
     $form['url_options'] = [
       '#type' => 'fieldset',
       '#title' => 'Invalidation Options',
@@ -164,8 +190,8 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       if ($entity_type_definition instanceof ContentEntityType && is_a($entity_type_definition->getClass(), FieldableEntityInterface::class, TRUE)) {
         $entity_type_id = $entity_type_definition->id();
         $entity_type_label = $entity_type_definition->getLabel();
-        $options = $this->getBundleOptions($entity_type_id);
-        if (!empty($options)) {
+        $bundle_options = $this->getBundleOptions($entity_type_id);
+        if (!empty($bundle_options)) {
           $form['entity_types'][$entity_type_id] = [
             '#type' => 'details',
             '#title' => $entity_type_label,
@@ -174,7 +200,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
           $form['entity_types'][$entity_type_id]['bundles'] = [
             '#type' => 'checkboxes',
             '#multiple' => TRUE,
-            '#options' => $options,
+            '#options' => $bundle_options,
             '#default_value' => isset($entity_types[$entity_type_id]['bundles']) ? $entity_types[$entity_type_id]['bundles'] : [],
           ];
         }
@@ -193,6 +219,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('derivative_expression_strategy', $form_state->getValue('derivative_expression_strategy'));
     $config->set('style_expression_strategy', $form_state->getValue('style_expression_strategy'));
     $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
+    $config->set('file_schemes', $form_state->getValue('file_schemes'));
     $config->set('entity_types', $form_state->getValue('entity_types'));
     $config->save();
   }

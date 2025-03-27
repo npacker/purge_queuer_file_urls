@@ -56,21 +56,21 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function generateFromFile(FileInterface $file) {
+  public function generateFromFile(FileInterface $file): UrlExpressionInterface {
     return $this->fileExpressionStrategy->generateFileExpression($file);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function generateFromImage(FileInterface $image) {
+  public function generateFromImage(FileInterface $image): \Generator {
     yield from $this->imageExpressionStrategy->generateImageExpression($image);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
+  public function generateFromStyle(ImageStyleInterface $style, string $path = ''): UrlExpressionInterface {
     return empty($path) ?
       $this->styleExpressionStrategy->generateStyleExpression($style) :
       $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path);

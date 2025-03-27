@@ -24,7 +24,7 @@ interface UrlExpressionFactoryInterface {
    * @param \Drupal\image\FileInterface $image
    *   The image entity to generate an invalidation expression.
    */
-  public function generateFromImage(FileInterface $image): UrlExpressionInterface;
+  public function generateFromImage(FileInterface $image): \Generator;
 
   /**
    * Generate an image style URL expression for invalidation.

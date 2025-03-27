@@ -2,10 +2,12 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
+use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 
 /**
  * Base class for URLs collector classes.
@@ -13,44 +15,57 @@ use Drupal\Core\Field\FieldTypePluginManagerInterface;
 abstract class UrlCollectorBase implements UrlCollectorInterface {
 
   /**
-   * The field type plugin manager.
+   * Construct a new EntityUpdateService object.
    *
-   * @var \Drupal\Core\Field\FieldTypePluginManagerInterface
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $fieldTypePluginManager
+   *   The field type plugin manager.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
+   *   The entity field manager.
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $streamWrapperManager
+   *   The stream wrapper manager.
+   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
+   *   The URL expression factory.
+   * @param string[] $fileSchemes
+   *   The file schemes to include for collection.
    */
-  protected $fieldTypePluginManager;
-
-  /**
-   * The entity field manager.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
-   */
-  protected $entityFieldManager;
-
-  /**
-   * The URL expression factory.
-   *
-   * @var \Drupal\purge_queuer_file_urls\FileUrlExpressionFactoryInterface $urlExpressionFactory
-   */
-  protected $urlExpressionFactory;
+  public function __construct(
+    protected FieldTypePluginManagerInterface $fieldTypePluginManager,
+    protected EntityFieldManagerInterface $entityFieldManager,
+    protected StreamWrapperManagerInterface $streamWrapperManager,
+    protected UrlExpressionFactoryInterface $urlExpressionFactory,
+    protected array $fileSchemes
+  ) {}
 
   /**
    * Construct a new EntityUpdateService object.
    *
-   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $fieldTypePluginManager
    *   The field type plugin manager.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
-   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $url_expression_factory
+   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $streamWrapperManager
+   *   The stream wrapper manager.
+   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
    *   The URL expression factory.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The config factory.
    */
-  public function __construct(
+  public static function create(
     FieldTypePluginManagerInterface $field_type_plugin_manager,
     EntityFieldManagerInterface $entity_field_manager,
-    UrlExpressionFactoryInterface $url_expression_factory
+    StreamWrapperManagerInterface $stream_wrapper_manager,
+    UrlExpressionFactoryInterface $url_expression_factory,
+    ConfigFactoryInterface $config_factory
   ) {
-    $this->fieldTypePluginManager = $field_type_plugin_manager;
-    $this->entityFieldManager = $entity_field_manager;
-    $this->urlExpressionFactory = $url_expression_factory;
+    $config = $config_factory->get('purge_queuer_file_urls.settings');
+    $file_schemes = $config->get('file_schemes');
+    return new static(
+      $field_type_plugin_manager,
+      $entity_field_manager,
+      $stream_wrapper_manager,
+      $url_expression_factory,
+      $file_schemes
+    );
   }
 
   /**

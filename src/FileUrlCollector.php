@@ -25,7 +25,12 @@ class FileUrlCollector extends UrlCollectorBase {
         // ensure that all file-type fields are handled.
         if (is_a($field_type_class, FileItem::class, TRUE)) {
           foreach ($entity->{$field_name} as $field_item) {
-            yield $this->urlExpressionFactory->generateFromFile($field_item->entity);
+            /** @var \Drupal\file\FileInterface $file */
+            $file = $field_item->entity;
+            $scheme = $this->streamWrapperManager->getScheme($file->getFileUri());
+            if ($this->fileSchemes && in_array($scheme, $this->fileSchemes)) {
+              yield $this->urlExpressionFactory->generateFromFile($file);
+            }
           }
         }
       }
