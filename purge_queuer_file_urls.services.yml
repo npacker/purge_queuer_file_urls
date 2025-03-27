@@ -41,28 +41,31 @@ services:
       - '@purge.queue'
       - '@purge.queuers'
 
-  # PURGE_QUEUER_FILE_URLS.FILE_URL_COLLECTOR
-  #
-  # Provides a service object to collect file urls.
-  purge_queuer_file_urls.file_url_collector:
-    class: Drupal\purge_queuer_file_urls\FileUrlCollector
-    factory: [null, 'create']
+  # Provides a configurator for URL collector services.
+  Drupal\purge_queuer_file_urls\UrlCollectorConfigurator:
+    arguments:
+      - '@config.factory'
+
+  # Provides a base service for URL collector services.
+  Drupal\purge_queuer_file_urls\UrlCollectorBase:
+    abstract: true
     arguments:
       - '@plugin.manager.field.field_type'
       - '@entity_field.manager'
       - '@stream_wrapper_manager'
       - '@purge_queuer_file_urls.url_expression_factory'
-      - '@config.factory'
+    configurator: ['@Drupal\purge_queuer_file_urls\UrlCollectorConfigurator', 'configure']
+
+  # PURGE_QUEUER_FILE_URLS.FILE_URL_COLLECTOR
+  #
+  # Provides a service object to collect file urls.
+  purge_queuer_file_urls.file_url_collector:
+    class: Drupal\purge_queuer_file_urls\FileUrlCollector
+    parent: Drupal\purge_queuer_file_urls\UrlCollectorBase
 
   # PURGE_QUEUER_FILE_URLS.IMAGE_STYLE_URL_COLLECTOR
   #
   # Provides a service object to collect image style urls.
   purge_queuer_file_urls.image_style_url_collector:
     class: Drupal\purge_queuer_file_urls\ImageStyleUrlCollector
-    factory: [null, 'create']
-    arguments:
-      - '@plugin.manager.field.field_type'
-      - '@entity_field.manager'
-      - '@stream_wrapper_manager'
-      - '@purge_queuer_file_urls.url_expression_factory'
-      - '@config.factory'
+    parent: Drupal\purge_queuer_file_urls\UrlCollectorBase

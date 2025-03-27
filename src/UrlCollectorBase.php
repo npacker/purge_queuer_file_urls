@@ -15,6 +15,13 @@ use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 abstract class UrlCollectorBase implements UrlCollectorInterface {
 
   /**
+   * The file schemes to include for collection.
+   *
+   * @var string[]
+   */
+  protected $fileSchemes;
+
+  /**
    * Construct a new EntityUpdateService object.
    *
    * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $fieldTypePluginManager
@@ -33,39 +40,16 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
     protected EntityFieldManagerInterface $entityFieldManager,
     protected StreamWrapperManagerInterface $streamWrapperManager,
     protected UrlExpressionFactoryInterface $urlExpressionFactory,
-    protected array $fileSchemes
   ) {}
 
   /**
-   * Construct a new EntityUpdateService object.
+   * Set the file schemes to include for collection.
    *
-   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $fieldTypePluginManager
-   *   The field type plugin manager.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
-   *   The entity field manager.
-   * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $streamWrapperManager
-   *   The stream wrapper manager.
-   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
-   *   The URL expression factory.
-   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
+   * @param string[] $file_schemes
+   *   An array of file schemes.
    */
-  public static function create(
-    FieldTypePluginManagerInterface $field_type_plugin_manager,
-    EntityFieldManagerInterface $entity_field_manager,
-    StreamWrapperManagerInterface $stream_wrapper_manager,
-    UrlExpressionFactoryInterface $url_expression_factory,
-    ConfigFactoryInterface $config_factory
-  ) {
-    $config = $config_factory->get('purge_queuer_file_urls.settings');
-    $file_schemes = $config->get('file_schemes');
-    return new static(
-      $field_type_plugin_manager,
-      $entity_field_manager,
-      $stream_wrapper_manager,
-      $url_expression_factory,
-      $file_schemes
-    );
+  public function setFileSchemes(array $file_schemes) {
+    $this->fileSchemes = $file_schemes;
   }
 
   /**
