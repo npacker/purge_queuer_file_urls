@@ -32,6 +32,7 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
   public function __construct(
     protected FieldTypePluginManagerInterface $fieldTypePluginManager,
     protected EntityFieldManagerInterface $entityFieldManager,
+    protected UrlExpressionFactoryInterface $urlExpressionFactory
   ) {}
 
   /**
