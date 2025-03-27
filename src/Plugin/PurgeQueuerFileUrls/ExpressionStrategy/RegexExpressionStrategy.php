@@ -8,6 +8,7 @@ use Drupal\image\Entity\ImageStyle;
 use Drupal\image\ImageStyleInterface;
 use Drupal\purge_queuer_file_urls\Attribute\ExpressionStrategy;
 use Drupal\purge_queuer_file_urls\StringExpression;
+use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 
 #[ExpressionStrategy(
   id: 'regex',
@@ -22,7 +23,7 @@ class RegexExpressionStrategy extends ExpressionStrategyBase implements ImageExp
   /**
    * {@inheritdoc}
    */
-  public function generateImageExpression(FileInterface $image) {
+  public function generateImageExpression(FileInterface $image): \Generator {
     $image_uri = $image->getFileUri();
     $styles = ImageStyle::loadMultiple();
     foreach ($styles as $style) {
@@ -37,7 +38,7 @@ class RegexExpressionStrategy extends ExpressionStrategyBase implements ImageExp
   /**
    * {@inheritdoc}
    */
-  public function generateStyleExpression(ImageStyleInterface $style) {
+  public function generateStyleExpression(ImageStyleInterface $style): UrlExpressionInterface {
     $url = $this->fileUrlGenerator->generate($style->buildUri(''));
     return new StringExpression($this->pluginId, '^' . $url->setAbsolute($this->absoluteUrls)->toString() . '\/.*$');
   }
