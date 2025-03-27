@@ -1,11 +1,38 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 
 /**
  * Implements hook_entity_update().
  */
 function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
+  purge_queuer_file_urls_invalidate_entity($entity);
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function purge_queuer_file_urls_entity_delete(EntityInterface $entity) {
+  purge_queuer_file_urls_invalidate_entity($entity);
+}
+
+/**
+ * Implements hook_image_style_flush().
+ */
+function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
+  $url_expression_factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
+  $expression = $url_expression_factory->generateFromStyle($style, $path ?? '');
+  purge_queuer_file_urls_queue_expression([$expression]);
+}
+
+/**
+ * Invalidate files collected from the given entity.
+ *
+ * @param \Drupal\Core\Entity\EntityInterface $entity
+ *   The entity to check for files to invalidate.
+ */
+function purge_queuer_file_urls_invalidate_entity(EntityInterface $entity) {
   $file_url_collector = \Drupal::service('purge_queuer_file_urls.file_url_collector');
   $file_url_queuer = \Drupal::service('purge_queuer_file_urls.file_url_queuer');
   $file_url_queuer->invalidateUrls($file_url_collector->collect($entity));
@@ -15,11 +42,24 @@ function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
 }
 
 /**
- * Implements hook_image_style_flush().
+ * Invalidate the given file.
+ *
+ * @param \Drupal\file\FileInterface $file
+ *   The file to invalidate.
  */
-function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
+function purge_queuer_file_urls_invalidate_file(FileInterface $file) {
   $url_expression_factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
-  $expression = $url_expression_factory->generateFromStyle($style, $path ?? '');
+  $expression = $url_expression_factory->generateFromFile($file);
+  purge_queuer_file_urls_queue_expression([$expression]);
+}
+
+/**
+ * Queue the given expression for invalidation.
+ *
+ * @param Generator<\Drupal\purge_queuer_file_urls\UrlExpressionInterface> $expression
+ *   A generator that yields expressions to invalidate.
+ */
+function purge_queuer_file_urls_queue_expressions(iterable $expressions) {
   $file_url_queuer = \Drupal::service('purge_queuer_file_urls.file_url_queuer');
-  $file_url_queuer->invalidateUrls([$expression]);
+  $file_url_queuer->invalidateUrls($expressions);
 }
