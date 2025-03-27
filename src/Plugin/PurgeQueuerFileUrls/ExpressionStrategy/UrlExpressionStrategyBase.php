@@ -5,6 +5,7 @@ namespace Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStr
 use Drupal\file\FileInterface;
 use Drupal\image\Entity\ImageStyle;
 use Drupal\image\ImageStyleInterface;
+use Drupal\purge_queuer_file_urls\FileUrlExpression;
 
 /**
  * Base plugin class for URL expression strategies.
@@ -21,7 +22,7 @@ abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implemen
    * {@inheritdoc}
    */
   public function generateFileExpression(FileInterface $file) {
-    return $this->fileUrlGenerator->generate($file->getFileUri());
+    return new FileUrlExpression($this->pluginId, $this->fileUrlGenerator->generate($file->getFileUri()));
   }
 
   /**
@@ -30,7 +31,7 @@ abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implemen
   public function generateImageExpression(FileInterface $image) {
     $styles = ImageStyle::loadMultiple();
     foreach ($styles as $style) {
-      yield $this->fileUrlGenerator->generate($style->buildUri($image->getFileUri()));
+      yield new FileUrlExpression($this->pluginId, $this->fileUrlGenerator->generate($style->buildUri($image->getFileUri())));
     }
   }
 
@@ -38,7 +39,7 @@ abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implemen
    * {@inheritdoc}
    */
   public function generateDerivativeExpression(ImageStyleInterface $style, string $path) {
-    return $this->fileUrlGenerator->generate($style->buildUri($path));
+    return new FileUrlExpression($this->pluginId, $this->fileUrlGenerator->generate($style->buildUri($path)));
   }
 
 }

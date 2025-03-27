@@ -57,19 +57,14 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * {@inheritdoc}
    */
   public function generateFromFile(FileInterface $file) {
-    return new FileUrlExpression(
-      $this->fileExpressionStrategy->getPluginId(),
-      $this->fileExpressionStrategy->generateFileExpression($file)
-    );
+    return $this->fileExpressionStrategy->generateFileExpression($file);
   }
 
   /**
    * {@inheritdoc}
    */
   public function generateFromImage(FileInterface $image) {
-    foreach ($this->imageExpressionStrategy->generateImageExpression($image) as $expression) {
-      yield new FileUrlExpression($this->imageExpressionStrategy->getPluginId(), $expression);
-    }
+    yield from $this->imageExpressionStrategy->generateImageExpression($image);
   }
 
   /**
@@ -77,14 +72,8 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    */
   public function generateFromStyle(ImageStyleInterface $style, string $path = '') {
     return empty($path) ?
-      new ImageStyleUrlExpression(
-        $this->styleExpressionStrategy->getPluginId(),
-        $this->styleExpressionStrategy->generateStyleExpression($style)
-      ) :
-      new FileUrlExpression(
-        $this->derivativeExpressionStrategy->getPluginId(),
-        $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path)
-      );
+      $this->styleExpressionStrategy->generateStyleExpression($style) :
+      $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path);
   }
 
 }
