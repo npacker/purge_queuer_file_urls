@@ -10,7 +10,7 @@ use Drupal\purge_queuer_file_urls\Service\StreamWrapperFilterServiceInterface;
  * Decorates UrlExpressionFactory objects.
  *
  * Filters out files and image style paths via the stream wrapper filter
- * service..
+ * service.
  */
 class SchemeFilteredUrlExpressionFactory implements UrlExpressionFactoryInterface {
 
