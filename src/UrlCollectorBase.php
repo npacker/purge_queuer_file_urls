@@ -2,24 +2,15 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
-use Drupal\file\Plugin\Field\FieldType\FileItem;
 
 /**
  * Base class for URLs collector classes.
  */
 abstract class UrlCollectorBase implements UrlCollectorInterface {
-
-  /**
-   * The file schemes to include for collection.
-   *
-   * @var string[]
-   */
-  protected $fileSchemes;
 
   /**
    * Construct a new EntityUpdateService object.
@@ -28,22 +19,14 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
    *   The field type plugin manager.
    * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
+   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
+   *   The URL expression factory.
    */
   public function __construct(
     protected FieldTypePluginManagerInterface $fieldTypePluginManager,
     protected EntityFieldManagerInterface $entityFieldManager,
-    protected UrlExpressionFactoryInterface $urlExpressionFactory
+    protected UrlExpressionFactoryInterface $urlExpressionFactory,
   ) {}
-
-  /**
-   * Set the file schemes to include for collection.
-   *
-   * @param string[] $file_schemes
-   *   An array of file schemes.
-   */
-  public function setFileSchemes(array $file_schemes) {
-    $this->fileSchemes = $file_schemes;
-  }
 
   /**
    * {@inheritdoc}
@@ -81,21 +64,6 @@ abstract class UrlCollectorBase implements UrlCollectorInterface {
     $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
     $field_type_class = $field_type_definition['class'] ?? NULL;
     return $field_type_class && is_a($field_type_class, $class_name, TRUE);
-  }
-
-  /**
-   * Determine if the URI scheme for a file field should be included.
-   *
-   * @param \Drupal\Core\Field\FieldDefinitionInterface $field_definition
-   *   The field definition.
-   *
-   * @return bool
-   *   Whether the scheme configured on the field definition is included for
-   *   collection.
-   */
-  protected function hasIncludedScheme(FieldDefinitionInterface $field_definition) {
-    $uri_scheme = $field_definition->getSetting('uri_scheme');
-    return $this->fileSchemes && in_array($uri_scheme, $this->fileSchemes);
   }
 
 }

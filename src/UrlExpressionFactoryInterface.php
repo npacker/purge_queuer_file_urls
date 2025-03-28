@@ -16,15 +16,7 @@ interface UrlExpressionFactoryInterface {
    * @param \Drupal\file\FileInterface $file
    *   The file entity to generate an invalidation expression.
    */
-  public function generateFromFile(FileInterface $file): UrlExpressionInterface;
-
-  /**
-   * Generate an image style regex for invalidation.
-   *
-   * @param \Drupal\image\FileInterface $image
-   *   The image entity to generate an invalidation expression.
-   */
-  public function generateFromImage(FileInterface $image): \Generator;
+  public function generateFromFile(FileInterface $file): \Generator;
 
   /**
    * Generate an image style URL expression for invalidation.
@@ -34,6 +26,6 @@ interface UrlExpressionFactoryInterface {
    * @param \string $path
    *   The path for the image style.
    */
-  public function generateFromStyle(ImageStyleInterface $style, string $path = ''): UrlExpressionInterface;
+  public function generateFromStyle(ImageStyleInterface $style, string $path = ''): \Generator;
 
 }

@@ -128,15 +128,11 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     ];
     $definitions = $this->pluginManager->getDefinitions();
     $file_expression_strategy_options = [];
-    $image_expression_strategy_options = [];
     $derivative_expression_strategy_options = [];
     $style_expression_strategy_options = [];
     foreach ($definitions as $plugin_id => $definition) {
       if (in_array('file', $definition['supports'])) {
         $file_expression_strategy_options[$plugin_id] = $definition['label'];
-      }
-      if (in_array('image', $definition['supports'])) {
-        $image_expression_strategy_options[$plugin_id] = $definition['label'];
       }
       if (in_array('derivative', $definition['supports'])) {
         $derivative_expression_strategy_options[$plugin_id] = $definition['label'];
@@ -151,13 +147,6 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       '#description' => $this->t('Handles invalidation of all individual non-image files.'),
       '#options' => $file_expression_strategy_options,
       '#default_value' => $config->get('file_expression_strategy'),
-    ];
-    $form['url_options']['image_expression_strategy'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Images'),
-      '#description' => $this->t('Handles invalidation of individual image files as well as any image style derivatives for that image.'),
-      '#options' => $image_expression_strategy_options,
-      '#default_value' => $config->get('image_expression_strategy'),
     ];
     $form['url_options']['derivative_expression_strategy'] = [
       '#type' => 'select',
@@ -215,7 +204,6 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   public function submitFormSuccess(array &$form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
     $config->set('file_expression_strategy', $form_state->getValue('file_expression_strategy'));
-    $config->set('image_expression_strategy', $form_state->getValue('image_expression_strategy'));
     $config->set('derivative_expression_strategy', $form_state->getValue('derivative_expression_strategy'));
     $config->set('style_expression_strategy', $form_state->getValue('style_expression_strategy'));
     $config->set('absolute_urls', $form_state->getValue('absolute_urls'));

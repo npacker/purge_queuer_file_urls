@@ -8,7 +8,6 @@ use Drupal\file\FileInterface;
 use Drupal\image\ImageStyleInterface;
 use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\DerivativeExpressionStrategyInterface;
 use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\FileExpressionStrategyInterface;
-use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ImageExpressionStrategyInterface;
 use Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\StyleExpressionStrategyInterface;
 
 /**
@@ -21,8 +20,6 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    *
    * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\DerivativeExpressionStrategyInterface $fileExpressionStrategy
    *   The expression generation strategy to use for files.
-   * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\FileExpressionStrategyInterface $imageExpressionStrategy
-   *   The expression generation strategy to use for images.
    * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ImageExpressionStrategyInterface $derivativeExpressionStrategy
    *   The expression generation strategy to use for image derivatives.
    * @param Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\StyleExpressionStrategyInterface $styleExpressionStrategy
@@ -30,9 +27,8 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    */
   public function __construct(
     protected readonly FileExpressionStrategyInterface $fileExpressionStrategy,
-    protected readonly ImageExpressionStrategyInterface $imageExpressionStrategy,
     protected readonly DerivativeExpressionStrategyInterface $derivativeExpressionStrategy,
-    protected readonly StyleExpressionStrategyInterface $styleExpressionStrategy
+    protected readonly StyleExpressionStrategyInterface $styleExpressionStrategy,
   ) {}
 
   /**
@@ -47,7 +43,6 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     return new static(
       $plugin_manager->createInstance($config->get('file_expression_strategy')),
-      $plugin_manager->createInstance($config->get('image_expression_strategy')),
       $plugin_manager->createInstance($config->get('derivative_expression_strategy')),
       $plugin_manager->createInstance($config->get('style_expression_strategy'))
     );
@@ -56,22 +51,15 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
   /**
    * {@inheritdoc}
    */
-  public function generateFromFile(FileInterface $file): UrlExpressionInterface {
-    return $this->fileExpressionStrategy->generateFileExpression($file);
+  public function generateFromFile(FileInterface $file): \Generator {
+    yield $this->fileExpressionStrategy->generateFileExpression($file);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function generateFromImage(FileInterface $image): \Generator {
-    yield from $this->imageExpressionStrategy->generateImageExpression($image);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function generateFromStyle(ImageStyleInterface $style, string $path = ''): UrlExpressionInterface {
-    return empty($path) ?
+  public function generateFromStyle(ImageStyleInterface $style, string $path = ''): \Generator {
+    yield empty($path) ?
       $this->styleExpressionStrategy->generateStyleExpression($style) :
       $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path);
   }

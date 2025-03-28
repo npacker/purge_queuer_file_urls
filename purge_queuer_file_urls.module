@@ -23,7 +23,7 @@ function purge_queuer_file_urls_entity_delete(EntityInterface $entity) {
 function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
   $url_expression_factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
   $expression = $url_expression_factory->generateFromStyle($style, $path ?? '');
-  purge_queuer_file_urls_queue_expression([$expression]);
+  purge_queuer_file_urls_queue_expressions($expression);
 }
 
 /**
@@ -50,7 +50,7 @@ function purge_queuer_file_urls_invalidate_entity(EntityInterface $entity) {
 function purge_queuer_file_urls_invalidate_file(FileInterface $file) {
   $url_expression_factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
   $expression = $url_expression_factory->generateFromFile($file);
-  purge_queuer_file_urls_queue_expression([$expression]);
+  purge_queuer_file_urls_queue_expressions($expression);
 }
 
 /**

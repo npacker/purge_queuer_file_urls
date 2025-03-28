@@ -5,13 +5,20 @@ services:
     class: Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy\ExpressionStrategyManager
     parent: default_plugin_manager
 
-  # Provides a service object to create file url expressions.
-  purge_queuer_file_urls.url_expression_factory:
-    class: Drupal\purge_queuer_file_urls\UrlExpressionFactory
+  # Default URL expression factory implementation.
+  Drupal\purge_queuer_file_urls\UrlExpressionFactory:
     factory: [null, 'create']
     arguments:
       - '@config.factory'
       - '@plugin.manager.expression_strategy'
+
+  # Provides a service object to create file url expressions.
+  purge_queuer_file_urls.url_expression_factory:
+    class: Drupal\purge_queuer_file_urls\SchemeFilteredUrlExpressionFactory
+    decorates: Drupal\purge_queuer_file_urls\UrlExpressionFactory
+    arguments:
+      - '@.inner'
+      - '@purge_queuer_file_urls.stream_wrapper_filter'
 
   # Provides a file urls purge queuer the connects to the necessary purge
   # services to perform URL invalidation.
@@ -33,26 +40,33 @@ services:
       - '@purge.queue'
       - '@purge.queuers'
 
-  # Provides a configurator for URL collector services.
-  Drupal\purge_queuer_file_urls\UrlCollectorConfigurator:
-    arguments:
-      - '@config.factory'
-
-  # Provides a base service for URL collector services.
-  Drupal\purge_queuer_file_urls\UrlCollectorBase:
-    abstract: true
+  # Provides a factory for URL collector objects.
+  Drupal\purge_queuer_file_urls\UrlCollectorFactory:
+    class:
     arguments:
       - '@plugin.manager.field.field_type'
       - '@entity_field.manager'
+      - '@entity_type.manager'
       - '@purge_queuer_file_urls.url_expression_factory'
-    configurator: ['@Drupal\purge_queuer_file_urls\UrlCollectorConfigurator', 'configure']
 
-  # Provides a service object to collect file urls.
+  # Provides a service object to collect file URLs.
   purge_queuer_file_urls.file_url_collector:
     class: Drupal\purge_queuer_file_urls\FileUrlCollector
-    parent: Drupal\purge_queuer_file_urls\UrlCollectorBase
+    factory:  ['@Drupal\purge_queuer_file_urls\UrlCollectorFactory', 'createFileUrlCollector']
 
-  # Provides a service object to collect image style urls.
+  # Provides a service object to collect image style URLs.
   purge_queuer_file_urls.image_style_url_collector:
     class: Drupal\purge_queuer_file_urls\ImageStyleUrlCollector
-    parent: Drupal\purge_queuer_file_urls\UrlCollectorBase
+    factory:  ['@Drupal\purge_queuer_file_urls\UrlCollectorFactory', 'createImageStyleUrlCollector']
+
+  # Configurator for classes implementing the AllowedUriSchemesAwareInterface.
+  Drupal\purge_queuer_file_urls\Service\AllowedUriSchemesAwareConfigurator:
+    arguments:
+      - '@config.factory'
+
+  # Service for filtering file URLs and URIs based on a set of stream wrappers.
+  purge_queuer_file_urls.stream_wrapper_filter:
+    class: Drupal\purge_queuer_file_urls\Service\StreamWrapperFilterService
+    arguments:
+      - '@stream_wrapper_manager'
+    configurator: ['@Drupal\purge_queuer_file_urls\Service\AllowedUriSchemesAwareConfigurator', 'configure']

@@ -22,9 +22,9 @@ class FileUrlCollector extends UrlCollectorBase {
       foreach (array_intersect_key($field_definitions, $fields) as $field_name => $field_definition) {
         // Checking if the field type class is a sublcass of FileItem will
         // ensure that all file-type fields are handled.
-        if ($this->hasFieldTypeClass(FileItem::class, $field_definition) && $this->hasIncludedScheme($field_definition)) {
+        if ($this->hasFieldTypeClass(FileItem::class, $field_definition)) {
           foreach ($entity->{$field_name} as $field_item) {
-            yield $this->urlExpressionFactory->generateFromFile($field_item->entity);
+            yield from $this->urlExpressionFactory->generateFromFile($field_item->entity);
           }
         }
       }
