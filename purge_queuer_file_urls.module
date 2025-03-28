@@ -39,18 +39,6 @@ function purge_queuer_file_urls_invalidate_entity(EntityInterface $entity) {
 }
 
 /**
- * Invalidate the given file.
- *
- * @param \Drupal\file\FileInterface $file
- *   The file to invalidate.
- */
-function purge_queuer_file_urls_invalidate_file(FileInterface $file) {
-  $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
-  $expressions = $factory->generateFromFile($file);
-  purge_queuer_file_urls_queue_file_expressions($expressions);
-}
-
-/**
  * Queue the given file expressions for invalidation.
  *
  * @param Generator<\Drupal\purge_queuer_file_urls\UrlExpressionInterface> $expression
