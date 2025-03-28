@@ -32,7 +32,7 @@ class SchemeFilteredUrlExpressionFactory implements UrlExpressionFactoryInterfac
    */
   public function generateFromFile(FileInterface $file): \Generator {
     if ($this->streamWrapperFilterService->filterFiles([$file])) {
-      yield from $this->inner->generateFromFile($filtered_files);
+      yield from $this->inner->generateFromFile($file);
     }
   }
 
