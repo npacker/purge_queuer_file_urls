@@ -11,24 +11,21 @@ use Drupal\image\Plugin\Field\FieldType\ImageItem;
 /**
  * Helper class to collect image style URLs from entities.
  */
-class ImageStyleUrlCollector extends UrlCollectorBase {
+class ImageStyleUrlCollector extends UrlCollectorBase implements ImageStyleAwareInterface {
 
   /**
-   * Construct a new EntityUpdateService object.
+   * The array of image styles.
    *
-   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $fieldTypePluginManager
-   *   The field type plugin manager.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
-   *   The entity field manager.
-   * @param \Drupal\purge_queuer_file_urls\UrlExpressionFactoryInterface $urlExpressionFactory
-   *   The URL expression factory.
+   * @var string[]
    */
-  public function __construct(
-    protected FieldTypePluginManagerInterface $fieldTypePluginManager,
-    protected EntityFieldManagerInterface $entityFieldManager,
-    protected UrlExpressionFactoryInterface $urlExpressionFactory,
-    protected array $styles,
-  ) {}
+  protected $styles = [];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setImageStyles(array $image_styles): void {
+    $this->styles = $image_styles;
+  }
 
   /**
    * {@inheritdoc}

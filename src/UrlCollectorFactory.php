@@ -2,12 +2,13 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
-use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
-use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 
+/**
+ * Factory for constructing UrlCollector objects.
+ */
 class UrlCollectorFactory {
 
   public function __construct(
@@ -26,13 +27,13 @@ class UrlCollectorFactory {
   }
 
   public function createImageStyleUrlCollector() {
-    $styles = $this->getStyles();
-    return new ImageStyleUrlCollector(
+    $collector = new ImageStyleUrlCollector(
       $this->fieldTypePluginManager,
       $this->entityFieldManager,
       $this->urlExpressionFactory,
-      $styles,
     );
+    $collector->setImageStyles($this->getStyles());
+    return $collector;
   }
 
   protected function getStyles() {
