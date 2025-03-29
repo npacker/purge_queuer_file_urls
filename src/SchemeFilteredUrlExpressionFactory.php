@@ -31,8 +31,8 @@ class SchemeFilteredUrlExpressionFactory implements UrlExpressionFactoryInterfac
    * {@inheritdoc}
    */
   public function generateFromFile(FileInterface $file): \Generator {
-    if ($this->streamWrapperFilterService->filterFiles([$file])) {
-      yield from $this->inner->generateFromFile($file);
+    foreach ($this->streamWrapperFilterService->filterFiles([$file]) as $filtered_file) {
+      yield from $this->inner->generateFromFile($filtered_file);
     }
   }
 
@@ -40,8 +40,8 @@ class SchemeFilteredUrlExpressionFactory implements UrlExpressionFactoryInterfac
    * {@inheritdoc}
    */
   public function generateFromStyle(ImageStyleInterface $style, string $path = ''): \Generator {
-    if ($this->streamWrapperFilterService->filterUris([$path])) {
-      yield from $this->inner->generateFromStyle($style, $path);
+    foreach ($this->streamWrapperFilterService->filterUris([$path]) as $filtered_path) {
+      yield from $this->inner->generateFromStyle($style, $filtered_path);
     }
   }
 
