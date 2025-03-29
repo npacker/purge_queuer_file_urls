@@ -3,7 +3,6 @@
 namespace Drupal\purge_queuer_file_urls;
 
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Url;
 use Drupal\purge\Plugin\Purge\Invalidation\Exception\TypeUnsupportedException;
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
 use Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface;
@@ -20,27 +19,6 @@ use Drupal\purge\Plugin\Purge\Queuer\QueuerInterface;
 abstract class UrlQueuerBase implements UrlQueuerInterface {
 
   /**
-   * The purge invalidation factory service.
-   *
-   * @var \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface
-   */
-  protected $purgeInvalidationFactory;
-
-  /**
-   * The purge queue service.
-   *
-   * @var \Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface
-   */
-  protected $purgeQueue;
-
-  /**
-   * The queuer plugin or NULL when disabled.
-   *
-   * @var \Drupal\purge\Plugin\Purge\Queuer\QueuerInterface
-   */
-  protected $purgeQueuerPlugin;
-
-  /**
    * A list of URLs that have already been invalidated this request.
    *
    * Used to prevent the invalidation of the same URL multiple times.
@@ -52,22 +30,18 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
   /**
    * Constructs a new FileUrlQueuer.
    *
-   * @param \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface $purge_invalidation_factory
+   * @param \Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface $purgeInvalidationFactory
    *   The purge invalidation factory service.
-   * @param \Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface $purge_queue
+   * @param \Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface $purgeQueue
    *   The purge queue service.
-   * @param \Drupal\purge\Plugin\Queuer\Queuer $purge_queuer_plugin
+   * @param \Drupal\purge\Plugin\Queuer\Queuer $purgeQueuerPlugin
    *   The purge queuer plugin.
-   * @param \Drupal\purge_queuer_file_urls\UrlCollectorInterface $url_collector
-   *   The URL collector.
-   * @param string $invalidation_type
-   *   The invalidation type.
    */
-  public function __construct(InvalidationsServiceInterface $purge_invalidation_factory, QueueServiceInterface $purge_queue, QueuerInterface $purge_queuer_plugin) {
-    $this->purgeInvalidationFactory = $purge_invalidation_factory;
-    $this->purgeQueue = $purge_queue;
-    $this->purgeQueuerPlugin = $purge_queuer_plugin;
-  }
+  public function __construct(
+    protected readonly InvalidationsServiceInterface $purgeInvalidationFactory,
+    protected readonly QueueServiceInterface $purgeQueue,
+    protected readonly QueuerInterface $purgeQueuerPlugin,
+  ) {}
 
   /**
    * {@inheritdoc}

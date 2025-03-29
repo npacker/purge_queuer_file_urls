@@ -2,10 +2,8 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
-use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
-use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\image\Plugin\Field\FieldType\ImageItem;
 
 /**
