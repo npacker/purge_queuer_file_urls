@@ -18,7 +18,7 @@ abstract class FieldCacheBase {
    *
    * @var string
    */
-  protected $type;
+  protected $fieldTypeClass;
 
   /**
    * Field definitions.
@@ -60,7 +60,7 @@ abstract class FieldCacheBase {
       $bundle = $entity->bundle();
       $langcode = $this->languageManager->getCurrentLanguage()->getId();
       if (!isset($this->fieldDefinitions[$entity_type_id][$bundle][$langcode])) {
-        $cid = $this->getCacheId($entity_type_id, $bundle, $this->type, $langcode);
+        $cid = $this->getCacheId($entity_type_id, $bundle, $this->fieldTypeClass, $langcode);
         $data = [];
         if ($cache = $this->cache->get($cid)) {
           $data = $cache->data;
@@ -94,12 +94,12 @@ abstract class FieldCacheBase {
       $field_type_id = $field_definition->getType();
       $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
       $field_type_class = $field_type_definition['class'];
-      if (is_a($field_type_class, $this->type, TRUE)) {
+      if (is_a($field_type_class, $this->fieldTypeClass, TRUE)) {
         $data[$field_name] = $field_definition;
       }
     }
     $langcode = $this->languageManager->getCurrentLanguage()->getId();
-    $cid = $this->getCacheId($entity_type_id, $bundle, $this->type, $langcode);
+    $cid = $this->getCacheId($entity_type_id, $bundle, $this->fieldTypeClass, $langcode);
     $this->cache->set($cid, $data, CacheBackendInterface::CACHE_PERMANENT, [
       'entity_types',
       'entity_field_info',
@@ -115,7 +115,7 @@ abstract class FieldCacheBase {
    *   \Drupal\Core\Entity\FieldableEntityInterface are supported.
    * @param string $bundle
    *   The bundle.
-   * @param string $type
+   * @param string $field_type_class
    *   The field type.
    * @param string $langcode
    *   The current language code.
@@ -123,8 +123,8 @@ abstract class FieldCacheBase {
    * @return string
    *   The generated cache ID.
    */
-  protected function getCacheId($entity_type_id, $bundle, $type, $langcode) {
-    return "purge_queuer_file_urls:{$entity_type_id}:{$bundle}:{$type}:{$langcode}";
+  protected function getCacheId($entity_type_id, $bundle, $field_type_class, $langcode) {
+    return "purge_queuer_file_urls:{$entity_type_id}:{$bundle}:{$field_type_class}:{$langcode}";
   }
 
 }
