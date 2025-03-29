@@ -3,6 +3,7 @@
 namespace Drupal\purge_queuer_file_urls\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -38,8 +39,16 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   protected $pluginManager;
 
+  /**
+   * The stream wrapper manager.
+   *
+   * @var \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface
+   */
   protected $streamWrapperManager;
 
+  /**
+   * {@inheritdoc}
+   */
   public static function create(ContainerInterface $container) {
     return parent::create($container)
       ->setEntityTypeManager($container->get('entity_type.manager'))
@@ -110,91 +119,9 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
-    $form['file_options'] = [
-      '#type' => 'fieldset',
-      '#title' => 'File Scheme Options',
-      '#description' => $this->t('Include specific stream wrappers for invalidation.'),
-    ];
-    $scheme_options = $this->streamWrapperManager->getNames();
-    $form['file_options']['file_schemes'] = [
-      '#type' => 'checkboxes',
-      '#multiple' => TRUE,
-      '#options' => $scheme_options,
-      '#default_value' => $config->get('file_schemes') ?? [],
-    ];
-    $form['url_options'] = [
-      '#type' => 'fieldset',
-      '#title' => 'Invalidation Options',
-    ];
-    $definitions = $this->pluginManager->getDefinitions();
-    $file_expression_strategy_options = [];
-    $derivative_expression_strategy_options = [];
-    $style_expression_strategy_options = [];
-    foreach ($definitions as $plugin_id => $definition) {
-      if (in_array('file', $definition['supports'])) {
-        $file_expression_strategy_options[$plugin_id] = $definition['label'];
-      }
-      if (in_array('derivative', $definition['supports'])) {
-        $derivative_expression_strategy_options[$plugin_id] = $definition['label'];
-      }
-      if (in_array('style', $definition['supports'])) {
-        $style_expression_strategy_options[$plugin_id] = $definition['label'];
-      }
-    }
-    $form['url_options']['file_expression_strategy'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Files'),
-      '#description' => $this->t('Handles invalidation of all individual non-image files.'),
-      '#options' => $file_expression_strategy_options,
-      '#default_value' => $config->get('file_expression_strategy'),
-    ];
-    $form['url_options']['derivative_expression_strategy'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Image derivatives'),
-      '#description' => $this->t('Handles invalidation of individual image style derivatives for an image style.'),
-      '#options' => $derivative_expression_strategy_options,
-      '#default_value' => $config->get('derivative_expression_strategy'),
-    ];
-    $form['url_options']['style_expression_strategy'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Image styles'),
-      '#description' => $this->t('Handles invalidation of all derivaties for a given image style.'),
-      '#options' => $style_expression_strategy_options,
-      '#default_value' => $config->get('style_expression_strategy'),
-    ];
-    $form['url_options']['absolute_urls'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Absolute URLs'),
-      '#description' => $this->t('The default form for URL expressions, unless otherwise specified by a plugin definition.'),
-      '#default_value' => $config->get('absolute_urls'),
-    ];
-    $form['entity_types'] = [
-      '#type' => 'container',
-      '#markup' => $this->t('Configure entity type bundles to queue for file URL purging on entity update. If none are selected, all entity bundles will be eligible.'),
-      '#tree' => TRUE,
-    ];
-    $entity_types = $config->get('entity_types') ?? [];
-    $entity_type_definitions = $this->entityTypeManager->getDefinitions();
-    foreach ($entity_type_definitions as $entity_type_definition) {
-      if ($entity_type_definition instanceof ContentEntityType && is_a($entity_type_definition->getClass(), FieldableEntityInterface::class, TRUE)) {
-        $entity_type_id = $entity_type_definition->id();
-        $entity_type_label = $entity_type_definition->getLabel();
-        $bundle_options = $this->getBundleOptions($entity_type_id);
-        if (!empty($bundle_options)) {
-          $form['entity_types'][$entity_type_id] = [
-            '#type' => 'details',
-            '#title' => $entity_type_label,
-            '#open' => FALSE,
-          ];
-          $form['entity_types'][$entity_type_id]['bundles'] = [
-            '#type' => 'checkboxes',
-            '#multiple' => TRUE,
-            '#options' => $bundle_options,
-            '#default_value' => isset($entity_types[$entity_type_id]['bundles']) ? $entity_types[$entity_type_id]['bundles'] : [],
-          ];
-        }
-      }
-    }
+    $form['file_options'] = $this->buildFileOptionsForm($config);
+    $form['url_options'] = $this->buildUrlOptionsForm($config);
+    $form['entity_types'] = $this->buildEntityTypesForm($config);
     return parent::buildForm($form, $form_state);
   }
 
@@ -210,6 +137,138 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('file_schemes', $form_state->getValue('file_schemes'));
     $config->set('entity_types', $form_state->getValue('entity_types'));
     $config->save();
+  }
+
+  /**
+   * Build the file options form.
+   *
+   * @param \Drupal\Core\Config\Config $config
+   *   The configuration object.
+   *
+   * @return array
+   *   The file options form array.
+   */
+  protected function buildFileOptionsForm(Config $config) {
+    $scheme_options = $this->streamWrapperManager->getNames();
+    return [
+      '#type' => 'fieldset',
+      '#title' => $this->t('File Scheme Options'),
+      '#description' => $this->t('Include specific stream wrappers for invalidation.'),
+      'file_schemes' => [
+        '#type' => 'checkboxes',
+        '#multiple' => TRUE,
+        '#options' => $scheme_options,
+        '#default_value' => $config->get('file_schemes') ?? [],
+      ],
+    ];
+  }
+
+  /**
+   * Build the URL options form.
+   *
+   * @param \Drupal\Core\Config\Config $config
+   *   The configuration object.
+   *
+   * @return array
+   *   The URL options form array.
+   */
+  protected function buildUrlOptionsForm(Config $config) {
+    $definitions = $this->pluginManager->getDefinitions();
+    $file_expression_strategy_options = $this->getExpressionStrategyOptions($definitions, 'file');
+    $derivative_expression_strategy_options = $this->getExpressionStrategyOptions($definitions, 'derivative');
+    $style_expression_strategy_options = $this->getExpressionStrategyOptions($definitions,'style');
+    return [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Invalidation Options'),
+      'file_expression_strategy' => [
+        '#type' => 'select',
+        '#title' => $this->t('Files'),
+        '#description' => $this->t('Handles invalidation of all individual non-image files.'),
+        '#options' => $file_expression_strategy_options,
+        '#default_value' => $config->get('file_expression_strategy'),
+      ],
+      'derivative_expression_strategy' => [
+        '#type' => 'select',
+        '#title' => $this->t('Image derivatives'),
+        '#description' => $this->t('Handles invalidation of individual image style derivatives for an image style.'),
+        '#options' => $derivative_expression_strategy_options,
+        '#default_value' => $config->get('derivative_expression_strategy'),
+      ],
+      'style_expression_strategy' => [
+        '#type' => 'select',
+        '#title' => $this->t('Image styles'),
+        '#description' => $this->t('Handles invalidation of all derivaties for a given image style.'),
+        '#options' => $style_expression_strategy_options,
+        '#default_value' => $config->get('style_expression_strategy'),
+      ],
+      'absolute_urls' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Absolute URLs'),
+        '#description' => $this->t('The default form for URL expressions, unless otherwise specified by a plugin definition.'),
+        '#default_value' => $config->get('absolute_urls'),
+      ],
+    ];
+  }
+
+  /**
+   * Build the entity types form.
+   *
+   * @param \Drupal\Core\Config\Config $config
+   *   The configuration object.
+   *
+   * @return array
+   *   The entity types form array.
+   */
+  protected function buildEntityTypesForm(Config $config) {
+    $entity_types = $config->get('entity_types') ?? [];
+    $entity_type_definitions = $this->entityTypeManager->getDefinitions();
+    $form = [
+      '#type' => 'container',
+      '#markup' => $this->t('Configure entity type bundles to queue for file URL purging on entity update. If none are selected, all entity bundles will be eligible.'),
+      '#tree' => TRUE,
+    ];
+    foreach ($entity_type_definitions as $entity_type_definition) {
+      if ($entity_type_definition instanceof ContentEntityType && is_a($entity_type_definition->getClass(), FieldableEntityInterface::class, TRUE)) {
+        $entity_type_id = $entity_type_definition->id();
+        $entity_type_label = $entity_type_definition->getLabel();
+        $bundle_options = $this->getBundleOptions($entity_type_id);
+        if (!empty($bundle_options)) {
+          $form[$entity_type_id] = [
+            '#type' => 'details',
+            '#title' => $entity_type_label,
+            '#open' => FALSE,
+          ];
+          $form[$entity_type_id]['bundles'] = [
+            '#type' => 'checkboxes',
+            '#multiple' => TRUE,
+            '#options' => $bundle_options,
+            '#default_value' => isset($entity_types[$entity_type_id]['bundles']) ? $entity_types[$entity_type_id]['bundles'] : [],
+          ];
+        }
+      }
+    }
+    return $form;
+  }
+
+  /**
+   * Get expression strategy options.
+   *
+   * @param array $definitions
+   *   The plugin definitions.
+   * @param string $type
+   *   The type of expression strategy.
+   *
+   * @return array
+   *   The expression strategy options.
+   */
+  protected function getExpressionStrategyOptions(array $definitions, string $type) {
+    $options = [];
+    foreach ($definitions as $plugin_id => $definition) {
+      if (in_array($type, $definition['supports'])) {
+        $options[$plugin_id] = $definition['label'];
+      }
+    }
+    return $options;
   }
 
   /**
