@@ -48,7 +48,6 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
    */
   public function invalidateUrls(iterable $urls) {
     if ($this->purgeQueuerPlugin) {
-      $invalidations = [];
       /** @var \Drupal\purge_queuer_file_urls\UrlExpressionInterface $expression */
       foreach ($urls as $expression) {
         try {
@@ -57,7 +56,7 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
           $key = (string) $invalidation;
           if (empty($this->invalidatedUrls[$key])) {
             $this->invalidatedUrls[$key] = TRUE;
-            $invalidations[] = $invalidation;
+            $this->purgeQueue->add($this->purgeQueuerPlugin, [$invalidation]);
           }
         }
         catch (TypeUnsupportedException $e) {
@@ -69,9 +68,6 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
           // the plugin from loading.
           return;
         }
-      }
-      if ($invalidations) {
-        $this->purgeQueue->add($this->purgeQueuerPlugin, $invalidations);
       }
     }
   }
