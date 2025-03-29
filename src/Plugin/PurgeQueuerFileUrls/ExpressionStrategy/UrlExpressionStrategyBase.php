@@ -22,14 +22,14 @@ abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implemen
    * {@inheritdoc}
    */
   public function generateFileExpression(FileInterface $file): UrlExpressionInterface {
-    return new UrlExpression($this->pluginId, $this->fileUrlGenerator->generate($file->getFileUri()));
+    return new UrlExpression($this->pluginId, $this->fileUrlGenerator->generate($file->getFileUri())->setAbsolute($this->absoluteUrls));
   }
 
   /**
    * {@inheritdoc}
    */
   public function generateDerivativeExpression(ImageStyleInterface $style, string $path): UrlExpressionInterface {
-    return new UrlExpression($this->pluginId, $this->fileUrlGenerator->generate($style->buildUri($path)));
+    return new UrlExpression($this->pluginId, $this->fileUrlGenerator->generate($style->buildUri($path))->setAbsolute($this->absoluteUrls));
   }
 
 }

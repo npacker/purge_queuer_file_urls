@@ -22,7 +22,7 @@ abstract class UrlBase extends InvalidationBase implements InvalidationInterface
    */
   public function __toString() {
     if ($this->expression instanceof Url) {
-      return $this->expression->setAbsolute($this->absolute)->toString();
+      return $this->expression->toString();
     }
     else {
       return (string) $this->expression;
