@@ -6,32 +6,12 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Field\FieldTypePluginManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 
 /**
  * Base class for field caching services.
  */
 abstract class FieldCacheBase {
-
-  /**
-   * The cache backend.
-   *
-   * @var \Drupal\Core\Cache\CacheBackendInterface
-   */
-  protected $cache;
-
-  /**
-   * The entity field manager.
-   *
-   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
-   */
-  protected $entityFieldManager;
-
-  /**
-   * The field type plugin manager.
-   *
-   * @var \Drupal\Core\Field\FieldTypePluginManagerInterface
-   */
-  protected $fieldTypePluginManager;
 
   /**
    * The fully-qualified field type class to cache.
@@ -41,20 +21,29 @@ abstract class FieldCacheBase {
   protected $type;
 
   /**
+   * Field definitions.
+   *
+   * @var \Drupal\Core\Field\FieldDefinitionInterface[]
+   */
+  protected $fieldDefinitions = [];
+
+  /**
    * Constructs a FileFieldCache object.
    *
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    *   The cache backend.
-   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entityFieldManager
    *   The entity field manager.
-   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_plugin_manager
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $fieldTypePluginManager
    *   The field type plugin manager.
+   * @param \Drupal\Core\Language\LanguageManagerInterface $languageManager
    */
-  public function __construct(CacheBackendInterface $cache, EntityFieldManagerInterface $entity_field_manager, FieldTypePluginManagerInterface $field_type_plugin_manager) {
-    $this->cache = $cache;
-    $this->entityFieldManager = $entity_field_manager;
-    $this->fieldTypePluginManager = $field_type_plugin_manager;
-  }
+  public function __construct(
+    protected readonly CacheBackendInterface $cache,
+    protected readonly EntityFieldManagerInterface $entityFieldManager,
+    protected readonly FieldTypePluginManagerInterface $fieldTypePluginManager,
+    protected readonly LanguageManagerInterface $languageManager,
+  ) {}
 
   /**
    * Retrieves cached field definitions for the given entity.
@@ -65,22 +54,28 @@ abstract class FieldCacheBase {
    * @return \Drupal\Core\Field\FieldDefinitionInterface[]
    *   The array of field definitions for the bundle, keyed by field name.
    */
-  public function get(EntityInterface $entity) {
-    $data = [];
-    $entity_type_id = $entity->getEntityTypeId();
-    $bundle = $entity->bundle();
-    $cid = $this->buildCacheId($entity_type_id, $bundle, $this->type);
-    if ($cache = $this->cache->get($cid)) {
-      $data = $cache->data;
+  public function getFieldDefinitions(EntityInterface $entity) {
+    if ($entity instanceof FieldableEntityInterface) {
+      $entity_type_id = $entity->getEntityTypeId();
+      $bundle = $entity->bundle();
+      $langcode = $this->languageManager->getCurrentLanguage()->getId();
+      if (!isset($this->fieldDefinitions[$entity_type_id][$bundle][$langcode])) {
+        $cid = $this->getCacheId($entity_type_id, $bundle, $this->type, $langcode);
+        $data = [];
+        if ($cache = $this->cache->get($cid)) {
+          $data = $cache->data;
+        }
+        else {
+          $data = $this->rebuildFieldDefinitions($entity_type_id, $bundle);
+        }
+        $this->fieldDefinitions[$entity_type_id][$bundle][$langcode] = $data;
+      }
     }
-    else {
-      $data = $this->rebuild($entity_type_id, $bundle);
-    }
-    return $data;
+    return $this->fieldDefinitions[$entity_type_id][$bundle][$langcode] ?? [];
   }
 
   /**
-   * Rebuild the field definitions cache for the given entity.
+   * Rebuild the field definitions cache for the given entity type and bundle.
    *
    * @param string $entity_type_id
    *   The entity type ID. Only entity types that implement
@@ -91,24 +86,24 @@ abstract class FieldCacheBase {
    * @return \Drupal\Core\Field\FieldDefinitionInterface[]
    *   The array of field definitions for the bundle, keyed by field name.
    */
-  public function rebuild($entity) {
+  protected function rebuildFieldDefinitions(string $entity_type_id, string $bundle) {
     $data = [];
-    if ($entity instanceof FieldableEntityInterface) {
-      $entity_type_id = $entity->getEntityTypeId();
-      $bundle = $entity->bundle();
-      /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_definitions */
-      $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
-      foreach ($field_definitions as $field_name => $field_definition) {
-        $field_type_id = $field_definition->getType();
-        $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
-        $field_type_class = $field_type_definition['class'];
-        if (is_a($field_type_class, $this->type, TRUE)) {
-          $fields[$field_name] = $field_definition;
-        }
+    /** @var \Drupal\Core\Field\FieldDefinitionInterface[] $field_definitions */
+    $field_definitions = $this->entityFieldManager->getFieldDefinitions($entity_type_id, $bundle);
+    foreach ($field_definitions as $field_name => $field_definition) {
+      $field_type_id = $field_definition->getType();
+      $field_type_definition = $this->fieldTypePluginManager->getDefinition($field_type_id);
+      $field_type_class = $field_type_definition['class'];
+      if (is_a($field_type_class, $this->type, TRUE)) {
+        $data[$field_name] = $field_definition;
       }
-      $cid = $this->buildCacheId($entity_type_id, $bundle, $this->type);
-      $this->cache->set($cid, $data, CacheBackendInterface::CACHE_PERMANENT, ['entity_types', 'entity_field_info']);
     }
+    $langcode = $this->languageManager->getCurrentLanguage()->getId();
+    $cid = $this->getCacheId($entity_type_id, $bundle, $this->type, $langcode);
+    $this->cache->set($cid, $data, CacheBackendInterface::CACHE_PERMANENT, [
+      'entity_types',
+      'entity_field_info',
+    ]);
     return $data;
   }
 
@@ -121,13 +116,15 @@ abstract class FieldCacheBase {
    * @param string $bundle
    *   The bundle.
    * @param string $type
-   *   The field type being cached.
+   *   The field type.
+   * @param string $langcode
+   *   The current language code.
    *
    * @return string
    *   The generated cache ID.
    */
-  protected function buildCacheId($entity_type_id, $bundle, $type) {
-    return "purge_queuer_file_urls:{$entity_type_id}:{$bundle}:{$type}";
+  protected function getCacheId($entity_type_id, $bundle, $type, $langcode) {
+    return "purge_queuer_file_urls:{$entity_type_id}:{$bundle}:{$type}:{$langcode}";
   }
 
 }
