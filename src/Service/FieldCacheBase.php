@@ -55,10 +55,10 @@ abstract class FieldCacheBase {
    *   The array of field definitions for the bundle, keyed by field name.
    */
   public function getFieldDefinitions(EntityInterface $entity) {
+    $entity_type_id = $entity->getEntityTypeId();
+    $bundle = $entity->bundle();
+    $langcode = $this->languageManager->getCurrentLanguage()->getId();
     if ($entity instanceof FieldableEntityInterface) {
-      $entity_type_id = $entity->getEntityTypeId();
-      $bundle = $entity->bundle();
-      $langcode = $this->languageManager->getCurrentLanguage()->getId();
       if (!isset($this->fieldDefinitions[$entity_type_id][$bundle][$langcode])) {
         $cid = $this->getCacheId($entity_type_id, $bundle, $this->fieldTypeClass, $langcode);
         $data = [];
