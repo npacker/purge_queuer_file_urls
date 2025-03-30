@@ -20,9 +20,9 @@ interface DerivativeExpressionStrategyInterface extends PluginInspectionInterfac
    * @param string $path
    *   The path to an individual style derivative.
    *
-   * @return \Drupal\purge_queuer_file_urls\UrlExpressionInterface
-   *   The generated expression.
+   * @return Generator<\Drupal\purge_queuer_file_urls\UrlExpressionInterface>
+   *   A generator that yields UrlExpressionInterface objects.
    */
-  public function generateDerivativeExpression(ImageStyleInterface $style, string $path): UrlExpressionInterface;
+  public function generateDerivativeExpression(ImageStyleInterface $style, string $path): \Generator;
 
 }

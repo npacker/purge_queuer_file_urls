@@ -52,14 +52,14 @@ class UrlExpressionFactory implements UrlExpressionFactoryInterface {
    * {@inheritdoc}
    */
   public function generateFromFile(FileInterface $file): \Generator {
-    yield $this->fileExpressionStrategy->generateFileExpression($file);
+    yield from $this->fileExpressionStrategy->generateFileExpression($file);
   }
 
   /**
    * {@inheritdoc}
    */
   public function generateFromStyle(ImageStyleInterface $style, string $path = ''): \Generator {
-    yield empty($path) ?
+    yield from empty($path) ?
       $this->styleExpressionStrategy->generateStyleExpression($style) :
       $this->derivativeExpressionStrategy->generateDerivativeExpression($style, $path);
   }

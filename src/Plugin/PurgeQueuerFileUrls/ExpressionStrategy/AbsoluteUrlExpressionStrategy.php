@@ -11,7 +11,6 @@ use Drupal\purge_queuer_file_urls\Attribute\ExpressionStrategy;
   supports: [
     'derivative',
     'file',
-    'image',
   ]
 )]
 class AbsoluteUrlExpressionStrategy extends UrlExpressionStrategyBase {}

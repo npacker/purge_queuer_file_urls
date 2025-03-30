@@ -21,15 +21,19 @@ abstract class UrlExpressionStrategyBase extends ExpressionStrategyBase implemen
   /**
    * {@inheritdoc}
    */
-  public function generateFileExpression(FileInterface $file): UrlExpressionInterface {
-    return new UrlExpression($this->pluginId, $this->fileUrlGenerator->generate($file->getFileUri()));
+  public function generateFileExpression(FileInterface $file): \Generator {
+    foreach ($this->fileUrlGenerator->generate($file->getFileUri()) as $url) {
+      yield new UrlExpression($this->pluginId, $url);
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function generateDerivativeExpression(ImageStyleInterface $style, string $path): UrlExpressionInterface {
-    return new UrlExpression($this->pluginId, $this->fileUrlGenerator->generate($style->buildUri($path)));
+  public function generateDerivativeExpression(ImageStyleInterface $style, string $path): \Generator {
+    foreach ($this->fileUrlGenerator->generate($style->buildUri($path)) as $url) {
+      yield new UrlExpression($this->pluginId, $url);
+    }
   }
 
 }

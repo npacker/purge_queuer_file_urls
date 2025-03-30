@@ -16,9 +16,9 @@ interface FileExpressionStrategyInterface extends ExpressionStrategyInterface {
    * @param \Drupal\file\FileInterface $file
    *   A file.
    *
-   * @return \Drupal\purge_queuer_file_urls\UrlExpressionInterface
-   *   The generated expression.
+   * @return Generator<\Drupal\purge_queuer_file_urls\UrlExpressionInterface>
+   *   A generator that yields UrlExpressionInterface objects.
    */
-  public function generateFileExpression(FileInterface $file): UrlExpressionInterface;
+  public function generateFileExpression(FileInterface $file): \Generator;
 
 }

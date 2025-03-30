@@ -3,8 +3,8 @@
 namespace Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy;
 
 use Drupal\Component\Plugin\PluginBase;
-use Drupal\Core\File\FileUrlGeneratorInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\purge_queuer_file_urls\Service\IterableFileUrlGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -31,10 +31,10 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   * @param \Drupal\purge_queuer_file_urls\Service\IterableFileUrlGeneratorInterface $file_url_generator
    *   The file ULR generator.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileUrlGeneratorInterface $file_url_generator) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, IterableFileUrlGeneratorInterface $file_url_generator) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->fileUrlGenerator = $file_url_generator;
   }

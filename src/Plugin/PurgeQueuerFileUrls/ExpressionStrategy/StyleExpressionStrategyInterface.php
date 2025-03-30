@@ -17,9 +17,9 @@ interface StyleExpressionStrategyInterface extends PluginInspectionInterface {
    * @param \Drupal\image\ImageStyleInterface $style
    *   An image style.
    *
-   * @return \Drupal\purge_queuer_file_urls\UrlExpressionInterface
-   *   The generated expression.
+   * @return Generator<\Drupal\purge_queuer_file_urls\UrlExpressionInterface>
+   *   A generator that yields UrlExpressionInterface objects.
    */
-  public function generateStyleExpression(ImageStyleInterface $style): UrlExpressionInterface;
+  public function generateStyleExpression(ImageStyleInterface $style): \Generator;
 
 }
