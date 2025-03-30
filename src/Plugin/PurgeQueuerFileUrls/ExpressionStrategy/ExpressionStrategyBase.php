@@ -23,13 +23,6 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
   protected $fileUrlGenerator;
 
   /**
-   * Whether to use absolute URLs.
-   *
-   * @var bool
-   */
-  protected $absoluteUrls;
-
-  /**
    * Creates an ExpressionStrategy plugin instance.
    *
    * @param array $configuration
@@ -40,13 +33,10 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
    *   The plugin implementation definition.
    * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
    *   The file ULR generator.
-   * @param bool $absolute_ruls
-   *   Whether to use absolute URLs.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileUrlGeneratorInterface $file_url_generator, bool $absolute_urls) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, FileUrlGeneratorInterface $file_url_generator) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->fileUrlGenerator = $file_url_generator;
-    $this->absoluteUrls = $absolute_urls;
   }
 
   /**
@@ -60,7 +50,6 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
       $plugin_id,
       $plugin_definition,
       $container->get('purge_queuer_file_urls.file_url_generator'),
-      $config->get('absolute_urls')
     );
   }
 
