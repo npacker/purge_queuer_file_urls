@@ -43,8 +43,6 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    $config_factory = $container->get('config.factory');
-    $config = $config_factory->get('purge_queuer_file_urls.settings');
     return new static(
       $configuration,
       $plugin_id,
