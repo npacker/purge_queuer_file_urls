@@ -78,11 +78,6 @@ services:
       - '@file_url_generator'
       - '@config.factory'
 
-  # Configurator for classes implementing the AbsoluteUrlsAwareInterface.
-  Drupal\purge_queuer_file_urls\Service\AbsoluteUrlsAwareConfigurator:
-    arguments:
-      - '@config.factory'
-
   # Configurator for classes implementing the ImageStyleAwareInterface.
   Drupal\purge_queuer_file_urls\ImageStyleAwareConfigurator:
     arguments:
