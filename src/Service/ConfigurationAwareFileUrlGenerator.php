@@ -55,9 +55,15 @@ class ConfigurationAwareFileUrlGenerator implements IterableFileUrlGeneratorInte
    * {@inheritdoc}
    */
   public function generateString(string $uri): \Generator {
-    yield $this->absolute ?
-      $this->fileUrlGenerator->generateAbsoluteString($uri) :
-      $this->fileUrlGenerator->generateString($uri);
+    if ($this->absolute) {
+      $this->fileUrlGenerator->generateAbsoluteString($uri);
+      foreach ($this->baseUrls as $base_url) {
+        yield Url::fromUri($base_url . $this->fileUrlGenerator->generateString($uri));
+      }
+    }
+    else {
+      yield $this->fileUrlGenerator->generateString($uri);
+    }
   }
 
 }
