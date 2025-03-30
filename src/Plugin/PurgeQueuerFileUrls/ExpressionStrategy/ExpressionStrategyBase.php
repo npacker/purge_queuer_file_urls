@@ -59,7 +59,7 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('file_url_generator'),
+      $container->get('purge_queuer_file_urls.file_url_generator'),
       $config->get('absolute_urls')
     );
   }

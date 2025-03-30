@@ -23,7 +23,7 @@ class RegexExpressionStrategy extends ExpressionStrategyBase implements Derivati
    */
   public function generateDerivativeExpression(ImageStyleInterface $style, string $path): UrlExpressionInterface {
     $style_url = $this->fileUrlGenerator->generate($style->buildUri($path));
-    $haystack = $style_url->setAbsolute($this->absoluteUrls)->toString();
+    $haystack = $style_url->toString();
     $replacement = '.*';
     $needle = preg_quote($style->id(), '/');
     return new StringExpression($this->pluginId, '^' . preg_replace('/(?<=\/)' . $needle . '(?=\/)/', $replacement, $haystack) . '$');
@@ -34,7 +34,7 @@ class RegexExpressionStrategy extends ExpressionStrategyBase implements Derivati
    */
   public function generateStyleExpression(ImageStyleInterface $style): UrlExpressionInterface {
     $url = $this->fileUrlGenerator->generate($style->buildUri(''));
-    return new StringExpression($this->pluginId, '^' . $url->setAbsolute($this->absoluteUrls)->toString() . '\/.*$');
+    return new StringExpression($this->pluginId, '^' . $url . '\/.*$');
   }
 
 }
