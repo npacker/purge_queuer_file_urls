@@ -139,10 +139,9 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
-    $form['file_options'] = $this->buildFileOptionsForm($form_state, $config);
     $form['url_options'] = $this->buildUrlOptionsForm($form_state, $config);
+    $form['file_options'] = $this->buildFileOptionsForm($form_state, $config);
     $form['base_urls'] = $this->buildBaseUrlsOptionsForm($form_state, $config);
-    $form['entity_types'] = $this->buildEntityTypesForm($form_state, $config);
     return parent::buildForm($form, $form_state);
   }
 
@@ -159,7 +158,6 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('base_urls', array_filter($form_state->getValue('base_urls') ?? [], function (string $base_url) {
       return !empty(trim($base_url));
     }));
-    $config->set('entity_types', $form_state->getValue('entity_types'));
     $config->save();
   }
 
@@ -208,6 +206,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     return [
       '#type' => 'fieldset',
       '#title' => $this->t('Invalidation Options'),
+      '#description' => $this->t('<strong>Ensure that a compatible purger is configured for each invalidation type selected.</strong>'),
       'file_expression_strategy' => [
         '#type' => 'select',
         '#title' => $this->t('Files'),
@@ -253,7 +252,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $form = [
       '#type' => 'fieldset',
       '#title' => $this->t('Base URLs'),
-      '#description' => $this->t('Configure additional base URLs to invalidate. This can be helpful if the external URL of the site resolves to a different domain. <strong>Only applies when absolute URL expression plugins are in effect.</strong>'),
+      '#description' => $this->t('Configure additional base URLs to invalidate. <strong>Only applies if at least one invalidation type is configured to output absolute URLs.</strong>'),
       'base_urls' => [
         '#type' => 'container',
         '#prefix' => '<div id="base-urls-wrapper">',
@@ -317,48 +316,6 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   }
 
   /**
-   * Build the entity types form.
-   *
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The form state.
-   * @param \Drupal\Core\Config\Config $config
-   *   The configuration object.
-   *
-   * @return array
-   *   The entity types form array.
-   */
-  protected function buildEntityTypesForm(FormStateInterface $form_state, Config $config) {
-    $entity_types = $config->get('entity_types') ?? [];
-    $entity_type_definitions = $this->entityTypeManager->getDefinitions();
-    $form = [
-      '#type' => 'container',
-      '#markup' => $this->t('Configure entity type bundles to queue for file URL purging on entity update. If none are selected, all entity bundles will be eligible.'),
-      '#tree' => TRUE,
-    ];
-    foreach ($entity_type_definitions as $entity_type_definition) {
-      if ($entity_type_definition instanceof ContentEntityType && is_a($entity_type_definition->getClass(), FieldableEntityInterface::class, TRUE)) {
-        $entity_type_id = $entity_type_definition->id();
-        $entity_type_label = $entity_type_definition->getLabel();
-        $bundle_options = $this->getBundleOptions($entity_type_id);
-        if (!empty($bundle_options)) {
-          $form[$entity_type_id] = [
-            '#type' => 'details',
-            '#title' => $entity_type_label,
-            '#open' => FALSE,
-          ];
-          $form[$entity_type_id]['bundles'] = [
-            '#type' => 'checkboxes',
-            '#multiple' => TRUE,
-            '#options' => $bundle_options,
-            '#default_value' => isset($entity_types[$entity_type_id]['bundles']) ? $entity_types[$entity_type_id]['bundles'] : [],
-          ];
-        }
-      }
-    }
-    return $form;
-  }
-
-  /**
    * Get expression strategy options.
    *
    * @param array $definitions
@@ -377,26 +334,6 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       }
     }
     return $options;
-  }
-
-  /**
-   * Get entity type bundle checkbox options.
-   *
-   * Populates an array of bundle labels for the given entity type id, keyed by
-   * the machine name of the bundle.
-   *
-   * @param string $entity_type_id
-   *   The entity type id.
-   */
-  protected function getBundleOptions($entity_type_id) {
-    $bundles = $this->entityTypeBundleInfo->getBundleInfo($entity_type_id);
-    $transformed_bundles = [];
-    foreach ($bundles as $name => $bundle) {
-      if (!empty($bundle['label'])) {
-        $transformed_bundles[$name] = $bundle['label'];
-      }
-    }
-    return $transformed_bundles;
   }
 
 }
