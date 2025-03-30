@@ -58,4 +58,13 @@ purge_queuer_file_urls.settings:
           FullyValidatable: ~
       constraints:
         FullyValidatable: ~
-
+    base_urls:
+      type: sequence
+      label: 'Base URLs'
+      orderby: value
+      sequence:
+        type: string
+        constraints:
+          FullyValidatable: ~
+      constraints:
+        FullyValidatable: ~

@@ -10,3 +10,4 @@ file_schemes:
   temporary: 0
   translations: 0
   private: 0
+base_urls: [ ]

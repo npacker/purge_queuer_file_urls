@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\purge_ui\Form\QueuerConfigFormBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * The configuration form for the file URLs queuer.
@@ -47,6 +48,13 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   protected $streamWrapperManager;
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
@@ -54,7 +62,8 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       ->setEntityTypeManager($container->get('entity_type.manager'))
       ->setEntityTypeBundleInfo($container->get('entity_type.bundle.info'))
       ->setPluginManager($container->get('plugin.manager.expression_strategy'))
-      ->setStreamWrapperManager($container->get('stream_wrapper_manager'));
+      ->setStreamWrapperManager($container->get('stream_wrapper_manager'))
+      ->setRequestStack($container->get('request_stack'));
   }
 
   /**
@@ -94,9 +103,20 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    * Set the stream wrapper manager.
    *
    * @param \Drupal\Core\StreamWrapper\StreamWrapperManagerInterface $stream_wrapper_manager
+   *   The stream wrapper manager.
    */
   public function setStreamWrapperManager(StreamWrapperManagerInterface $stream_wrapper_manager) {
     $this->streamWrapperManager = $stream_wrapper_manager;
+    return $this;
+  }
+
+  /** Set the request stack.
+   *
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
+   */
+  public function setRequestStack(RequestStack $request_stack) {
+    $this->requestStack = $request_stack;
     return $this;
   }
 
@@ -119,9 +139,10 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('purge_queuer_file_urls.settings');
-    $form['file_options'] = $this->buildFileOptionsForm($config);
-    $form['url_options'] = $this->buildUrlOptionsForm($config);
-    $form['entity_types'] = $this->buildEntityTypesForm($config);
+    $form['file_options'] = $this->buildFileOptionsForm($form_state, $config);
+    $form['url_options'] = $this->buildUrlOptionsForm($form_state, $config);
+    $form['base_urls'] = $this->buildBaseUrlsOptionsForm($form_state, $config);
+    $form['entity_types'] = $this->buildEntityTypesForm($form_state, $config);
     return parent::buildForm($form, $form_state);
   }
 
@@ -135,6 +156,9 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('style_expression_strategy', $form_state->getValue('style_expression_strategy'));
     $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
     $config->set('file_schemes', $form_state->getValue('file_schemes'));
+    $config->set('base_urls', array_filter($form_state->getValue('base_urls') ?? [], function (string $base_url) {
+      return !empty(trim($base_url));
+    }));
     $config->set('entity_types', $form_state->getValue('entity_types'));
     $config->save();
   }
@@ -142,13 +166,15 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   /**
    * Build the file options form.
    *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    * @param \Drupal\Core\Config\Config $config
    *   The configuration object.
    *
    * @return array
    *   The file options form array.
    */
-  protected function buildFileOptionsForm(Config $config) {
+  protected function buildFileOptionsForm(FormStateInterface $form_state, Config $config) {
     $scheme_options = $this->streamWrapperManager->getNames();
     return [
       '#type' => 'fieldset',
@@ -166,13 +192,15 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   /**
    * Build the URL options form.
    *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    * @param \Drupal\Core\Config\Config $config
    *   The configuration object.
    *
    * @return array
    *   The URL options form array.
    */
-  protected function buildUrlOptionsForm(Config $config) {
+  protected function buildUrlOptionsForm(FormStateInterface $form_state, Config $config) {
     $definitions = $this->pluginManager->getDefinitions();
     $file_expression_strategy_options = $this->getExpressionStrategyOptions($definitions, 'file');
     $derivative_expression_strategy_options = $this->getExpressionStrategyOptions($definitions, 'derivative');
@@ -211,15 +239,95 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   }
 
   /**
+   * Build the base URLs options form.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   * @param \Drupal\Core\Config\Config $config
+   *   The configuration object.
+   *
+   * @return array
+   *   The base URLs form array.
+   */
+  protected function buildBaseUrlsOptionsForm(FormStateInterface $form_state, Config $config) {
+    $form = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Base URLs'),
+      '#description' => $this->t('Configure additional base URLs to invalidate. This can be helpful if the external URL of the site resolves to a different domain. <strong>Only applies when absolute URL expression plugins are in effect.</strong>'),
+      'base_urls' => [
+        '#type' => 'container',
+        '#prefix' => '<div id="base-urls-wrapper">',
+        '#suffix' => '</div>',
+        '#tree' => TRUE,
+      ],
+      'actions' => [
+        'add_base_url' => [
+          '#type' => 'submit',
+          '#name' => 'add_base_url',
+          '#value' => $this->t('Add base URL'),
+          '#submit' => [
+            [$this, 'addBaseUrlSubmit'],
+          ],
+          '#ajax' => [
+            'callback' => [$this, 'addBaseUrlCallback'],
+            'wrapper' => 'base-urls-wrapper',
+            'effect' => 'fade',
+          ],
+        ],
+      ],
+    ];
+    $current_base_url = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
+    $base_urls = $form_state->getValue('base_urls') ?? $config->get('base_urls');
+    foreach ($base_urls as $delta => $base_url) {
+      $form['base_urls'][$delta] = [
+        '#type' => 'textfield',
+        '#default_value' => $base_url,
+        '#placeholder' => $current_base_url,
+      ];
+    }
+    $form['base_urls'][] = [
+      '#type' => 'textfield',
+      '#placeholder' => $current_base_url,
+    ];
+    return $form;
+  }
+
+  /**
+   * Submit handler for add_base_url button.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function addBaseUrlSubmit(array &$form, FormStateInterface $form_state) {
+    $form_state->setRebuild();
+  }
+
+  /**
+   * AJAX callback for add_base_url button.
+   *
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   */
+  public function addBaseUrlCallback(array &$form, FormStateInterface $form_state) {
+    return $form['base_urls']['base_urls'];
+  }
+
+  /**
    * Build the entity types form.
    *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
    * @param \Drupal\Core\Config\Config $config
    *   The configuration object.
    *
    * @return array
    *   The entity types form array.
    */
-  protected function buildEntityTypesForm(Config $config) {
+  protected function buildEntityTypesForm(FormStateInterface $form_state, Config $config) {
     $entity_types = $config->get('entity_types') ?? [];
     $entity_type_definitions = $this->entityTypeManager->getDefinitions();
     $form = [
