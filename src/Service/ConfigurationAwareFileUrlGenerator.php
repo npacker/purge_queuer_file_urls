@@ -4,6 +4,7 @@ namespace Drupal\purge_queuer_file_urls\Service;
 
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\File\FileUrlGeneratorInterface;
+use Drupal\Core\Url;
 
 /**
  * File URL generator class that provides generator methods for creating file
@@ -43,6 +44,11 @@ class ConfigurationAwareFileUrlGenerator implements IterableFileUrlGeneratorInte
    */
   public function generate(string $uri): \Generator {
     yield $this->fileUrlGenerator->generate($uri)->setAbsolute($this->absolute);
+    if ($this->absolute) {
+      foreach ($this->baseUrls as $base_url) {
+        yield Url::fromUri($base_url . $this->fileUrlGenerator->generateString($uri));
+      }
+    }
   }
 
   /**
