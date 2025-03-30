@@ -1,19 +1,28 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\file\FileInterface;
 
 /**
- * Implements hook_entity_update().
+ * Implements hook_ENTITY_TYPE_insert().
  */
-function purge_queuer_file_urls_entity_update(EntityInterface $entity) {
-  purge_queuer_file_urls_invalidate_entity($entity);
+function purge_queuer_file_urls_file_insert(EntityInterface $entity) {
+  purge_queuer_file_urls_invalidate_file($entity);
 }
 
 /**
- * Implements hook_entity_delete().
+ * Implements hook_ENTITY_TYPE_update().
  */
-function purge_queuer_file_urls_entity_delete(EntityInterface $entity) {
-  purge_queuer_file_urls_invalidate_entity($entity);
+function purge_queuer_file_urls_file_update(EntityInterface $entity) {
+  purge_queuer_file_urls_invalidate_file($entity->original);
+  purge_queuer_file_urls_invalidate_file($entity);
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function purge_queuer_file_urls_file_delete(EntityInterface $entity) {
+  purge_queuer_file_urls_invalidate_file($entity);
 }
 
 /**
@@ -26,16 +35,15 @@ function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
 }
 
 /**
- * Invalidate files collected from the given entity.
+ * Invalidate the given file entity.
  *
- * @param \Drupal\Core\Entity\EntityInterface $entity
+ * @param  \Drupal\file\FileInterface $file
  *   An entity to check for files to invalidate.
  */
-function purge_queuer_file_urls_invalidate_entity(EntityInterface $entity) {
-  $file_collector = \Drupal::service('purge_queuer_file_urls.file_url_collector');
-  purge_queuer_file_urls_queue_file_expressions($file_collector->collect($entity));
-  $style_collector = \Drupal::service('purge_queuer_file_urls.image_style_url_collector');
-  purge_queuer_file_urls_queue_style_expressions($style_collector->collect($entity));
+function purge_queuer_file_urls_invalidate_file(FileInterface $file) {
+  $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
+  $expressions = $factory->generateFromFile($file);
+  purge_queuer_file_urls_queue_file_expressions($expressions);
 }
 
 /**
