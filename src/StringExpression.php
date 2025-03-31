@@ -13,14 +13,14 @@ class StringExpression extends UrlExpression {
   /**
    * Creates a new StringExpression object.
    *
-   * @param string $invalidation_type
+   * @param string $invalidationType
    *   The invalidation plugin type associated with this expression.
    * @param string $expression
    *   The invalidation expression.
    */
-  public function __construct(string $invalidation_type, string $expression) {
-    $this->invalidationType = $invalidation_type;
-    $this->expression = $expression;
-  }
+  public function __construct(
+    protected readonly string $invalidationType,
+    protected readonly string $expression,
+  ) {}
 
 }
