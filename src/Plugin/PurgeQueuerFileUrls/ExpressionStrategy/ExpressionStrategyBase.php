@@ -16,13 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 abstract class ExpressionStrategyBase extends PluginBase implements ExpressionStrategyInterface, ContainerFactoryPluginInterface {
 
   /**
-   * The file URL generator.
-   *
-   * @var \Drupal\Core\File\FileUrlGeneratorInterface
-   */
-  protected $fileUrlGenerator;
-
-  /**
    * Creates an ExpressionStrategy plugin instance.
    *
    * @param array $configuration
@@ -31,12 +24,16 @@ abstract class ExpressionStrategyBase extends PluginBase implements ExpressionSt
    *   The plugin ID for the plugin instance.
    * @param mixed $plugin_definition
    *   The plugin implementation definition.
-   * @param \Drupal\purge_queuer_file_urls\Service\IterableFileUrlGeneratorInterface $file_url_generator
+   * @param \Drupal\purge_queuer_file_urls\Service\IterableFileUrlGeneratorInterface $fileUrlGenerator
    *   The file ULR generator.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, IterableFileUrlGeneratorInterface $file_url_generator) {
+  public function __construct(
+    array $configuration,
+    $plugin_id,
+    $plugin_definition,
+    protected readonly IterableFileUrlGeneratorInterface $fileUrlGenerator,
+  ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->fileUrlGenerator = $file_url_generator;
   }
 
   /**
