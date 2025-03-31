@@ -3,6 +3,7 @@
 namespace Drupal\purge_queuer_file_urls\Form;
 
 use Drupal\Component\Plugin\PluginManagerInterface;
+use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\Config;
 use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
@@ -143,6 +144,17 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $form['file_options'] = $this->buildFileOptionsForm($form_state, $config);
     $form['base_urls'] = $this->buildBaseUrlsOptionsForm($form_state, $config);
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    foreach ($form_state->getValue('base_urls') as $delta => $base_url) {
+      if (!empty($base_url) && !UrlHelper::isValid($base_url, TRUE)) {
+        $form_state->setErrorByName('base_urls', 'Enter URLs in a valid format.');
+      }
+    }
   }
 
   /**
