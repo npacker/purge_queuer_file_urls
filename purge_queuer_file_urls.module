@@ -29,9 +29,13 @@ function purge_queuer_file_urls_file_delete(EntityInterface $entity) {
  * Implements hook_image_style_flush().
  */
 function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
-  $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
-  $expressions = $factory->generateFromStyle($style, $path ?? '');
-  purge_queuer_file_urls_queue_style_expressions($expressions);
+  $queuers = \Drupal::service('purge.queuers');
+  $queuer = $queuers->get('imagestyles');
+  if ($queuer) {
+    $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
+    $expressions = $factory->generateFromStyle($style, $path ?? '');
+    purge_queuer_file_urls_queue_style_expressions($expressions);
+  }
 }
 
 /**
@@ -41,9 +45,13 @@ function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
  *   An entity to check for files to invalidate.
  */
 function purge_queuer_file_urls_invalidate_file(FileInterface $file) {
-  $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
-  $expressions = $factory->generateFromFile($file);
-  purge_queuer_file_urls_queue_file_expressions($expressions);
+  $queuers = \Drupal::service('purge.queuers');
+  $queuer = $queuers->get('file');
+  if ($queuer) {
+    $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
+    $expressions = $factory->generateFromFile($file);
+    purge_queuer_file_urls_queue_file_expressions($expressions);
+  }
 }
 
 /**
