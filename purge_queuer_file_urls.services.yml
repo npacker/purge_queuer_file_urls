@@ -53,7 +53,7 @@ services:
   # Service for generating URLs that respects the configured value for
   # purge_queuer_file_urls.settings.absolute_urls.
   purge_queuer_file_urls.file_url_generator:
-    class: Drupal\purge_queuer_file_urls\Service\ConfigurationAwareFileUrlGenerator
+    class: Drupal\purge_queuer_file_urls\Service\IterableFileUrlGenerator
     factory: [null, 'create']
     arguments:
       - '@file_url_generator'

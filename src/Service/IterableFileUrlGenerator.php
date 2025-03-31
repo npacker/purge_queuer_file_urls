@@ -10,10 +10,10 @@ use Drupal\Core\Url;
  * File URL generator class that provides generator methods for creating file
  * URLs and modifies the generation of URLs based on configuration.
  */
-class ConfigurationAwareFileUrlGenerator implements IterableFileUrlGeneratorInterface {
+class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
 
   /**
-   * Constructs a new ConfigurationAwareFileUrlGenerator object.
+   * Constructs a new IterableFileUrlGenerator object.
    *
    * @param \Drupal\Core\File\FileUrlGeneratorInterface $fileUrlGenerator
    *   The inner file URL generator.
