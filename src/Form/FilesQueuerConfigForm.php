@@ -167,9 +167,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('style_expression_strategy', $form_state->getValue('style_expression_strategy'));
     $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
     $config->set('file_schemes', $form_state->getValue('file_schemes'));
-    $config->set('base_urls', array_filter($form_state->getValue('base_urls') ?? [], function (string $base_url) {
-      return !empty(trim($base_url));
-    }));
+    $config->set('base_urls', $this->processBaseUrls($form_state->getValue('base_urls') ?? []));
     $config->save();
   }
 
@@ -346,6 +344,26 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       }
     }
     return $options;
+  }
+
+  /**
+   * Helper function to process base URLs by trimming trailing slashes and filtering out empty strings.
+   *
+   * @param array $base_urls
+   *   The array of base URLs to process.
+   *
+   * @return array
+   *   The processed array of base URLs.
+   */
+  protected function processBaseUrls(array $base_urls) {
+    $processed_urls = [];
+    foreach ($base_urls as $base_url) {
+      $trimmed_url = rtrim($base_url, '/');
+      if (!empty($trimmed_url)) {
+        $processed_urls[] = $trimmed_url;
+      }
+    }
+    return $processed_urls;
   }
 
 }
