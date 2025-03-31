@@ -43,25 +43,6 @@ services:
     class: Drupal\purge_queuer_file_urls\ImageStyleUrlQueuer
     parent: Drupal\purge_queuer_file_urls\UrlQueuerBase
 
-  # Base URL collector class.
-  Drupal\purge_queuer_file_urls\UrlCollectorBase:
-    abstract: true
-    arguments:
-      - '@plugin.manager.field.field_type'
-      - '@entity_field.manager'
-      - '@purge_queuer_file_urls.url_expression_factory'
-
-  # Provides a service object to collect file URLs.
-  purge_queuer_file_urls.file_url_collector:
-    class: Drupal\purge_queuer_file_urls\FileUrlCollector
-    parent: Drupal\purge_queuer_file_urls\UrlCollectorBase
-
-  # Provides a service object to collect image style URLs.
-  purge_queuer_file_urls.image_style_url_collector:
-    class: Drupal\purge_queuer_file_urls\ImageStyleUrlCollector
-    parent: Drupal\purge_queuer_file_urls\UrlCollectorBase
-    configurator: ['@Drupal\purge_queuer_file_urls\ImageStyleAwareConfigurator', 'configure']
-
   # Service for filtering file URLs and URIs based on a set of stream wrappers.
   purge_queuer_file_urls.stream_wrapper_filter:
     class: Drupal\purge_queuer_file_urls\Service\StreamWrapperFilterService
@@ -77,11 +58,6 @@ services:
     arguments:
       - '@file_url_generator'
       - '@config.factory'
-
-  # Configurator for classes implementing the ImageStyleAwareInterface.
-  Drupal\purge_queuer_file_urls\ImageStyleAwareConfigurator:
-    arguments:
-      - '@entity_type.manager'
 
   # Configurator for classes implementing the AllowedUriSchemesAwareInterface.
   Drupal\purge_queuer_file_urls\Service\AllowedUriSchemesAwareConfigurator:
