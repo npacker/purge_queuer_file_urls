@@ -22,6 +22,9 @@ interface DerivativeExpressionStrategyInterface extends PluginInspectionInterfac
    *
    * @return Generator<\Drupal\purge_queuer_file_urls\UrlExpressionInterface>
    *   A generator that yields UrlExpressionInterface objects.
+   *
+   * @throws \Drupal\Core\File\Exception\InvalidStreamWrapperException
+   *   If a stream wrapper could not be found to generate an external URL.
    */
   public function generateDerivativeExpression(ImageStyleInterface $style, string $path): \Generator;
 
