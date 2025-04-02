@@ -6,6 +6,9 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Plugin\DefaultPluginManager;
 
+/**
+ * Plugin manager for Expression Strategy plugins.
+ */
 class ExpressionStrategyManager extends DefaultPluginManager {
 
   /**

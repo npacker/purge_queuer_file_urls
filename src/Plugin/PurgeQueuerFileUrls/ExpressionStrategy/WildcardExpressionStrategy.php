@@ -18,6 +18,9 @@ use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 )]
 class WildcardExpressionStrategy extends ExpressionStrategyBase implements DerivativeExpressionStrategyInterface, StyleExpressionStrategyInterface {
 
+  /**
+   * {@inheritdoc}
+   */
   public function generateDerivativeExpression(ImageStyleInterface $style, string $path): \Generator {
     foreach ($this->fileUrlGenerator->generate($style->buildUri($path)) as $style_url) {
       $haystack = $style_url->toString();
