@@ -1,0 +1,6 @@
+<?php
+
+function purge_queuer_file_urls_update_91001() {
+  \Drupal::service('kernel')->invalidateContainer();
+  return t('Refreshed services container.');
+}
