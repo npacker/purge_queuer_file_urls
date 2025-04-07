@@ -53,7 +53,7 @@ purge_queuer_file_urls.settings:
       label: 'File Schemes'
       orderby: key
       sequence:
-        type: string
+        type: bool
         constraints:
           FullyValidatable: ~
       constraints:

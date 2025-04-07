@@ -166,7 +166,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('derivative_expression_strategy', $form_state->getValue('derivative_expression_strategy'));
     $config->set('style_expression_strategy', $form_state->getValue('style_expression_strategy'));
     $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
-    $config->set('file_schemes', $form_state->getValue('file_schemes'));
+    $config->set('file_schemes', $form_state->getValue('file_schemes') ?? []);
     $config->set('base_urls', $this->processBaseUrls($form_state->getValue('base_urls') ?? []));
     $config->save();
   }

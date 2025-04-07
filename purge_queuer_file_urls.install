@@ -1,6 +1,24 @@
 <?php
 
+/**
+ * Invalidate services container.
+ */
 function purge_queuer_file_urls_update_91001() {
   \Drupal::service('kernel')->invalidateContainer();
   return t('Refreshed services container.');
+}
+
+/**
+ * Update configuration.
+ */
+function purge_queuer_file_urls_update_91002() {
+  $factory = \Drupal::service('config.factory');
+  $config = $factory->getEditable('purge_queuer_file_urls.settings');
+  $config->set('file_schemes', ['public' => 'public']);
+  $config->set('file_expression_strategy', 'relativeurl');
+  $config->set('derivative_expression_strategy', 'relativeurl');
+  $config->set('style_expression_strategy', 'relativeurl');
+  $config->clear('image_expression_strategy');
+  $config->save();
+  return t('Updated configuration.');
 }
