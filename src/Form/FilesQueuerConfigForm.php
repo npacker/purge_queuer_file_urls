@@ -152,7 +152,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   public function validateForm(array &$form, FormStateInterface $form_state) {
     foreach ($form_state->getValue('base_urls') as $delta => $base_url) {
       if (!empty($base_url) && !UrlHelper::isValid($base_url, TRUE)) {
-        $form_state->setErrorByName('base_urls', 'Enter URLs in a valid format.');
+        $form_state->setErrorByName("base_urls][$delta", 'Enter URLs in a valid format.');
       }
     }
   }
