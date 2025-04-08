@@ -3,7 +3,6 @@
 namespace Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy;
 
 use Drupal\file\FileInterface;
-use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 
 /**
  * Defines an interface for generating individual file expressions.

@@ -2,14 +2,12 @@
 
 namespace Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStrategy;
 
-use Drupal\Component\Plugin\PluginInspectionInterface;
 use Drupal\image\ImageStyleInterface;
-use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 
 /**
  * Defines an interface for generating image style expressions.
  */
-interface StyleExpressionStrategyInterface extends PluginInspectionInterface {
+interface StyleExpressionStrategyInterface extends ExpressionStrategyInterface {
 
   /**
    * Generate an expression for the given image style.
