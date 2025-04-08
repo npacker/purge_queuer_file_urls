@@ -5,7 +5,6 @@ namespace Drupal\purge_queuer_file_urls\Plugin\PurgeQueuerFileUrls\ExpressionStr
 use Drupal\file\FileInterface;
 use Drupal\image\ImageStyleInterface;
 use Drupal\purge_queuer_file_urls\UrlExpression;
-use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 
 /**
  * Base plugin class for URL expression strategies.

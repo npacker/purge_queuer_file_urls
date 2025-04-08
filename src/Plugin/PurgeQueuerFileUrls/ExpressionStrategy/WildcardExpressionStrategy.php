@@ -6,7 +6,6 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\image\ImageStyleInterface;
 use Drupal\purge_queuer_file_urls\Attribute\ExpressionStrategy;
 use Drupal\purge_queuer_file_urls\StringExpression;
-use Drupal\purge_queuer_file_urls\UrlExpressionInterface;
 
 #[ExpressionStrategy(
   id: 'wildcard',
@@ -40,4 +39,3 @@ class WildcardExpressionStrategy extends ExpressionStrategyBase implements Deriv
   }
 
 }
-
