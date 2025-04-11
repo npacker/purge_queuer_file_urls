@@ -18,12 +18,12 @@ class UrlExpression implements UrlExpressionInterface {
    *
    * @param string $invalidationType
    *   The invalidation plugin type associated with this expression.
-   * @param \Drupal\Core\Url $expression
+   * @param mixed $expression
    *   The URL expression to be invalidated.
    */
   public function __construct(
     protected readonly string $invalidationType,
-    protected readonly Url $expression
+    protected readonly mixed $expression
   ) {}
 
   /**

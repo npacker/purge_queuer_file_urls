@@ -30,8 +30,7 @@ function purge_queuer_file_urls_file_delete(EntityInterface $entity) {
  */
 function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
   $queuers = \Drupal::service('purge.queuers');
-  $queuer = $queuers->get('imagestyles');
-  if ($queuer) {
+  if ($queuers->get('imagestyles')) {
     $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
     $expressions = $factory->generateFromStyle($style, $path ?? '');
     purge_queuer_file_urls_queue_style_expressions($expressions);
@@ -46,8 +45,7 @@ function purge_queuer_file_urls_image_style_flush($style, $path = NULL) {
  */
 function purge_queuer_file_urls_invalidate_file(FileInterface $file) {
   $queuers = \Drupal::service('purge.queuers');
-  $queuer = $queuers->get('file');
-  if ($queuer) {
+  if ($queuers->get('files')) {
     $factory = \Drupal::service('purge_queuer_file_urls.url_expression_factory');
     $expressions = $factory->generateFromFile($file);
     purge_queuer_file_urls_queue_file_expressions($expressions);
