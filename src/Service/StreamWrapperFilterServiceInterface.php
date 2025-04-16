@@ -21,10 +21,10 @@ interface StreamWrapperFilterServiceInterface {
   /**
    * Filter an array of URIs.
    *
-   * @param \Drupal\File\string[] $files
+   * @param string[] $files
    *   An array of URIs.
    *
-   * @return \Drupal\File\string[]
+   * @return string[]
    *   The filtered array of URIs.
    */
   public function filterUris(array $uris = []): array;
