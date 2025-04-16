@@ -11,7 +11,7 @@ trait WildcardExpressionTrait {
    */
   public function validateExpression() {
     parent::validateExpression();
-    if (strpos($expression, '*') === FALSE) {
+    if (strpos($this->expression, '*') === FALSE) {
       throw new InvalidExpressionException('Wildcard invalidations must contain an asterisk.');
     }
   }
