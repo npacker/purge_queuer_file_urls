@@ -2,8 +2,8 @@
 
 namespace Drupal\purge_queuer_file_urls;
 
-use Drupal\Core\Url;
 use Drupal\purge\Plugin\Purge\Invalidation\InvalidationsServiceInterface;
+use Drupal\purge\Plugin\Purge\Invalidation\InvalidationInterface;
 
 /**
  * Represents a URL expression used for cache invalidation.
@@ -29,7 +29,7 @@ class UrlExpression implements UrlExpressionInterface {
   /**
    * {@inheritdoc}
    */
-  public function getInvalidation(InvalidationsServiceInterface $purge_invalidation_factory) {
+  public function getInvalidation(InvalidationsServiceInterface $purge_invalidation_factory): InvalidationInterface {
     return $purge_invalidation_factory->get($this->invalidationType, $this->expression);
   }
 
