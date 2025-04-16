@@ -34,7 +34,7 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
    *   The purge invalidation factory service.
    * @param \Drupal\purge\Plugin\Purge\Queue\QueueServiceInterface $purgeQueue
    *   The purge queue service.
-   * @param \Drupal\purge\Plugin\Queuer\Queuer $purgeQueuerPlugin
+   * @param \Drupal\purge\Plugin\Purge\Queuer\QueuerInterface $purgeQueuerPlugin
    *   The purge queuer plugin.
    */
   public function __construct(
