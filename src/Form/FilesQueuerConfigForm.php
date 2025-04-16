@@ -5,10 +5,8 @@ namespace Drupal\purge_queuer_file_urls\Form;
 use Drupal\Component\Plugin\PluginManagerInterface;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\Config;
-use Drupal\Core\Entity\ContentEntityType;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\StreamWrapper\StreamWrapperManagerInterface;
 use Drupal\purge_ui\Form\QueuerConfigFormBase;
@@ -21,7 +19,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class FilesQueuerConfigForm extends QueuerConfigFormBase {
 
   /**
-   * Set the entity type manager
+   * Set the entity type manager.
    *
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
@@ -68,7 +66,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
   }
 
   /**
-   * Set the entity type manager
+   * Set the entity type manager.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
@@ -111,7 +109,8 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     return $this;
   }
 
-  /** Set the request stack.
+  /**
+   * Set the request stack.
    *
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   The request stack.
