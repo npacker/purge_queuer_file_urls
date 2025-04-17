@@ -25,7 +25,7 @@ abstract class UrlQueuerBase implements UrlQueuerInterface {
    *
    * @var bool[]
    */
-  protected $invalidatedUrls = [];
+  protected array $invalidatedUrls = [];
 
   /**
    * Constructs a new FileUrlQueuer.
