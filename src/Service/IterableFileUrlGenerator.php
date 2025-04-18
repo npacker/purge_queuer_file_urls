@@ -71,14 +71,14 @@ class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
    * {@inheritdoc}
    */
   public function generateAbsoluteString(string $uri): \Generator {
-    yield from $this->doGenerateAbsoluteString($uri, TRUE);
+    yield from $this->doGenerateString($uri, TRUE);
   }
 
   /**
    * {@inheritdoc}
    */
   public function generateRelativeString(string $uri): \Generator {
-    yield from $this->doGenerateRelativeString($uri);
+    yield from $this->doGenerateString($uri);
   }
 
   /**
