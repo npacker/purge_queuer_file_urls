@@ -6,3 +6,4 @@ entity_types: { }
 file_schemes:
   public: true
 base_urls: [ ]
+include_site_base_url: true

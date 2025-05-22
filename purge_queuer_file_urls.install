@@ -22,3 +22,14 @@ function purge_queuer_file_urls_update_91002() {
   $config->save();
   return t('Updated configuration.');
 }
+
+/**
+ * Add `include_site_base_urls` configuration value.
+ */
+function purge_queuer_file_urls_update_91003() {
+  $factory = \Drupal::service('config.factory');
+  $config = $factory->getEditable('purge_queuer_file_urls.settings');
+  $config->set('include_site_base_url', TRUE);
+  $config->save();
+  return t('Added `include_site_base_urls` configuration value.');
+}

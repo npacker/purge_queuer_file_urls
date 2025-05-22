@@ -167,6 +167,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
     $config->set('absolute_urls', $form_state->getValue('absolute_urls'));
     $config->set('file_schemes', $form_state->getValue('file_schemes') ?? []);
     $config->set('base_urls', $this->processBaseUrls($form_state->getValue('base_urls') ?? []));
+    $config->set('include_site_base_url', $form_state->getValue('include_site_base_url'));
     $config->save();
   }
 
@@ -258,10 +259,17 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
    *   The base URLs form array.
    */
   protected function buildBaseUrlsOptionsForm(FormStateInterface $form_state, Config $config) {
+    $current_base_url = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
     $form = [
       '#type' => 'fieldset',
       '#title' => $this->t('Base URLs'),
       '#description' => $this->t('Configure additional base URLs to invalidate. <strong>Only applies if at least one invalidation type is configured to output absolute URLs.</strong>'),
+      'include_site_base_url' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Invalidate the site base URL (<strong>@url</strong>)', ['@url' => $current_base_url]),
+        '#description' => $this->t('Whether to include the default site base URL when generating absolute URLs for invalidation.'),
+        '#default_value' => $config->get('include_site_base_url'),
+      ],
       'base_urls' => [
         '#type' => 'container',
         '#prefix' => '<div id="base-urls-wrapper">',
@@ -284,18 +292,17 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
         ],
       ],
     ];
-    $current_base_url = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
     $base_urls = $form_state->getValue('base_urls') ?? $config->get('base_urls');
     foreach ($base_urls as $delta => $base_url) {
       $form['base_urls'][$delta] = [
         '#type' => 'textfield',
         '#default_value' => $base_url,
-        '#placeholder' => $current_base_url,
+        '#placeholder' => 'http://example.com',
       ];
     }
     $form['base_urls'][] = [
       '#type' => 'textfield',
-      '#placeholder' => $current_base_url,
+        '#placeholder' => 'http://example.com',
     ];
     return $form;
   }

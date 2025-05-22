@@ -17,25 +17,24 @@ class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
    *
    * @param \Drupal\Core\File\FileUrlGeneratorInterface $fileUrlGenerator
    *   The inner file URL generator.
+   * @param \Drupal\purge_queuer_file_urls\Servce\BaseUrlsProviderInterface $baseUrlsProvider
+   *   The base URLs provider service.
    * @param bool $absolute
    *   (optional) Whether to return absolute or relative URLs.
-   * @param array $baseUrs
-   *   (optional) Additional base URLs for generation.
    */
   public function __construct(
     protected readonly FileUrlGeneratorInterface $fileUrlGenerator,
+    protected readonly BaseUrlsProviderInterface $baseUrlsProvider,
     protected ?bool $absolute = FALSE,
-    protected ?array $baseUrls = [],
   ) {}
 
-  public static function create(FileUrlGeneratorInterface $file_url_generator, ConfigFactory $config_factory) {
+  public static function create(FileUrlGeneratorInterface $file_url_generator, BaseUrlsProviderInterface $base_urls_provider, ConfigFactory $config_factory) {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls');
-    $base_urls = $config->get('base_urls');
     return new static(
       $file_url_generator,
+      $base_urls_provider,
       $absolute_urls,
-      $base_urls,
     );
   }
 
@@ -98,11 +97,13 @@ class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
    *   If a stream wrapper could not be found to generate an external URL.
    */
   protected function doGenerate(string $uri, bool $absolute = FALSE): \Generator {
-    yield $this->fileUrlGenerator->generate($uri)->setAbsolute($absolute);
     if ($absolute) {
-      foreach ($this->baseUrls as $base_url) {
+      foreach ($this->baseUrlsProvider->iterateBaseUrls() as $base_url) {
         yield Url::fromUri($base_url . $this->fileUrlGenerator->generateString($uri), ['absolute' => $absolute]);
       }
+    }
+    else {
+      $this->fileUrlGenerator->generate($uri)->setAbsolute(FALSE);
     }
   }
 
@@ -124,8 +125,7 @@ class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
    */
   protected function doGenerateString(string $uri, bool $absolute = FALSE): \Generator {
     if ($absolute) {
-      $this->fileUrlGenerator->generateAbsoluteString($uri);
-      foreach ($this->baseUrls as $base_url) {
+      foreach ($this->baseUrlsProvider->iterateBaseUrls() as $base_url) {
         yield $base_url . $this->fileUrlGenerator->generateString($uri);
       }
     }

@@ -68,3 +68,6 @@ purge_queuer_file_urls.settings:
           FullyValidatable: ~
       constraints:
         FullyValidatable: ~
+    include_site_base_url:
+      type: boolean
+      label: 'Include Site Base URL'
