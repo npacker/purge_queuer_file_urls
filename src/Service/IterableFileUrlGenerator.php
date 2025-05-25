@@ -103,7 +103,7 @@ class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
       }
     }
     else {
-      $this->fileUrlGenerator->generate($uri)->setAbsolute(FALSE);
+      yield $this->fileUrlGenerator->generate($uri)->setAbsolute($absolute);
     }
   }
 
