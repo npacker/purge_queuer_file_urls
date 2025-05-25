@@ -217,6 +217,12 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       '#type' => 'fieldset',
       '#title' => $this->t('Invalidation Options'),
       '#description' => $this->t('<strong>Ensure that a compatible purger is configured for each expression type selected.</strong>'),
+      'absolute_urls' => [
+        '#type' => 'checkbox',
+        '#title' => $this->t('Use absolute URLs when possible (<strong>http://example.com/path/to/file</strong>)'),
+        '#description' => $this->t('The default form for URL expressions, unless otherwise specified by a plugin definition below.'),
+        '#default_value' => $config->get('absolute_urls'),
+      ],
       'file_expression_strategy' => [
         '#type' => 'select',
         '#title' => $this->t('Files'),
@@ -237,12 +243,6 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
         '#description' => $this->t('Handles expression generation for all derivatives for a given image style.'),
         '#options' => $style_expression_strategy_options,
         '#default_value' => $config->get('style_expression_strategy'),
-      ],
-      'absolute_urls' => [
-        '#type' => 'checkbox',
-        '#title' => $this->t('Absolute URLs'),
-        '#description' => $this->t('The default form for URL expressions, unless otherwise specified by a plugin definition.'),
-        '#default_value' => $config->get('absolute_urls'),
       ],
     ];
   }
@@ -266,7 +266,7 @@ class FilesQueuerConfigForm extends QueuerConfigFormBase {
       '#description' => $this->t('Configure additional base URLs to invalidate. <strong>Only applies if at least one invalidation type is configured to output absolute URLs.</strong>'),
       'include_site_base_url' => [
         '#type' => 'checkbox',
-        '#title' => $this->t('Invalidate the site base URL (<strong>@url</strong>)', ['@url' => $current_base_url]),
+        '#title' => $this->t('Include the site base URL (<strong>@url</strong>)', ['@url' => $current_base_url]),
         '#description' => $this->t('Whether to include the default site base URL when generating absolute URLs for invalidation.'),
         '#default_value' => $config->get('include_site_base_url'),
       ],
