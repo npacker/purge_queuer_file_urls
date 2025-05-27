@@ -28,6 +28,19 @@ class IterableFileUrlGenerator implements IterableFileUrlGeneratorInterface {
     protected ?bool $absolute = FALSE,
   ) {}
 
+  /**
+   * Creates a new IterableFileUrlGenerator instance.
+   *
+   * @param \Drupal\Core\File\FileUrlGeneratorInterface $file_url_generator
+   *   The file URL generator.
+   * @param \Drupal\purge_queuer_file_urls\Service\BaseUrlsProviderInterface $base_urls_provider
+   *   The base URLs provider.
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   The configuration factory to retrieve absolute URL settings.
+   *
+   * @return \Drupal\purge_queuer_file_urls\Service\IterableFileUrlGenerator
+   *   A new instance of the generator configured with the provided settings.
+   */
   public static function create(FileUrlGeneratorInterface $file_url_generator, BaseUrlsProviderInterface $base_urls_provider, ConfigFactory $config_factory) {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $absolute_urls = $config->get('absolute_urls');
