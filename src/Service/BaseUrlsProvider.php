@@ -23,6 +23,17 @@ class BaseUrlsProvider implements BaseUrlsProviderInterface {
     protected readonly ?array $baseUrls = [],
   ) {}
 
+  /**
+   * Creates a new BaseUrlsProvider instance.
+   *
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
+   * @param \Drupal\Core\Config\ConfigFactory $config_factory
+   *   The configuration factory.
+   *
+   * @return \Drupal\purge_queuer_file_urls\Service\BaseUrlsProvider
+   *   A new BaseUrlsProvider instance.
+   */
   public static function create(RequestStack $request_stack, ConfigFactory $config_factory) {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $include_site_base_url = $config->get('include_site_base_url');
