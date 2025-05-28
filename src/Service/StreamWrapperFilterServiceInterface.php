@@ -8,25 +8,25 @@ namespace Drupal\purge_queuer_file_urls\Service;
 interface StreamWrapperFilterServiceInterface {
 
   /**
-   * Filter an array of files.
+   * Filter an iterable of files.
    *
-   * @param \Drupal\File\FileInterface[] $files
-   *   An array of files.
+   * @param iterable $files
+   *   An iterable of files.
    *
-   * @return \Drupal\File\FileInterface[]
-   *   The filtered array of files.
+   * @return \Generator
+   *   A generator of filtered files.
    */
-  public function filterFiles(array $files = []): array;
+  public function filterFiles(iterable $files): \Generator;
 
   /**
-   * Filter an array of URIs.
+   * Filter an iterable of URIs.
    *
-   * @param string[] $files
-   *   An array of URIs.
+   * @param iterable $uris
+   *   An iterable of URIs.
    *
-   * @return string[]
-   *   The filtered array of URIs.
+   * @return \Generator
+   *   A generator of filtered URIs.
    */
-  public function filterUris(array $uris = []): array;
+  public function filterUris(iterable $uris): \Generator;
 
 }

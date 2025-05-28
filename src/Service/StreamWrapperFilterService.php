@@ -37,21 +37,25 @@ class StreamWrapperFilterService implements StreamWrapperFilterServiceInterface,
   /**
    * {@inheritdoc}
    */
-  public function filterFiles(array $files = []): array {
-    return array_filter($files, function (FileInterface $file) {
+  public function filterFiles(iterable $files): \Generator {
+    foreach ($files as $file) {
       $uri_scheme = $this->streamWrapperManager->getScheme($file->getFileUri());
-      return $this->isAllowedUriScheme($uri_scheme);
-    });
+      if ($this->isAllowedUriScheme($uri_scheme)) {
+        yield $file;
+      }
+    }
   }
 
   /**
    * {@inheritdoc}
    */
-  public function filterUris(array $uris = []): array {
-    return array_filter($uris, function (string $uri) {
+  public function filterUris(iterable $uris): \Generator {
+    foreach ($uris as $uri) {
       $uri_scheme = $this->streamWrapperManager->getScheme($uri);
-      return $this->isAllowedUriScheme($uri_scheme);
-    });
+      if ($this->isAllowedUriScheme($uri_scheme)) {
+        yield $uri;
+      }
+    }
   }
 
   /**
