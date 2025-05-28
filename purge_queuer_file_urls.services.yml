@@ -50,7 +50,8 @@ services:
       - '@purge_queuer_file_urls.stream_wrapper_filter'
 
   # Provides a service object to create file url expressions.
-  purge_queuer_file_urls.url_expression_factory: '@Drupal\purge_queuer_file_urls\SchemeFilteredUrlExpressionFactory'
+  purge_queuer_file_urls.url_expression_factory:
+    alias: Drupal\purge_queuer_file_urls\SchemeFilteredUrlExpressionFactory
 
   # Base URL queuer service.
   Drupal\purge_queuer_file_urls\UrlQueuerBase:
