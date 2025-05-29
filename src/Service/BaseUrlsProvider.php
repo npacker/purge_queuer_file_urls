@@ -10,17 +10,17 @@ class BaseUrlsProvider implements BaseUrlsProviderInterface {
   /**
    * Constructs a new BaseUrlsProvider instance.
    *
-   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
-   *   The request stack.
    * @param bool $includeSiteBaseUrl
    *   (optional) Whether to include the site base URL. Defaults to TRUE.
    * @param array $baseUrls
    *   (optional) Additional base URLs to include.
+   * @param string $currentBaseUrl
+   *   The current base URL.
    */
   public function __construct(
-    protected readonly RequestStack $requestStack,
     protected readonly ?bool $includeSiteBaseUrl = TRUE,
     protected readonly ?array $baseUrls = [],
+    protected readonly string $currentBaseUrl,
   ) {}
 
   /**
@@ -38,10 +38,11 @@ class BaseUrlsProvider implements BaseUrlsProviderInterface {
     $config = $config_factory->get('purge_queuer_file_urls.settings');
     $include_site_base_url = $config->get('include_site_base_url');
     $base_urls = $config->get('base_urls');
+    $current_base_url = $request_stack->getCurrentRequest()->getSchemeAndHttpHost();
     return new static(
-      $request_stack,
       $include_site_base_url,
       $base_urls,
+      $current_base_url,
     );
   }
 
@@ -50,8 +51,7 @@ class BaseUrlsProvider implements BaseUrlsProviderInterface {
    */
   public function iterateBaseUrls(): \Generator {
     if ($this->includeSiteBaseUrl) {
-      $current_base_url = $this->requestStack->getCurrentRequest()->getSchemeAndHttpHost();
-      yield $current_base_url;
+      yield $this->currentBaseUrl;
     }
     foreach ($this->baseUrls as $base_url) {
       yield $base_url;
