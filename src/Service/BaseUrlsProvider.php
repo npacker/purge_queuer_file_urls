@@ -5,6 +5,9 @@ namespace Drupal\purge_queuer_file_urls\Service;
 use Drupal\Core\Config\ConfigFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * Provides base URLs for constructing URL invalidations.
+ */
 class BaseUrlsProvider implements BaseUrlsProviderInterface {
 
   /**
