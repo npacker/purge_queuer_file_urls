@@ -6,10 +6,10 @@ The Purge Queuer File URLs module integrates with the Purge framework to provide
 Features
 --------
 
-*   **Full Purge Ecosystem Integration**: Provides a Queuer for file invalidations, allowing flexible integration with any Queue or Processor plugin(s).
-*   **Highly Configurable**: Choose between different strategies for each invalidation case (files, image styles, image derivative), filter based on file schemes (public, private, etc.), and manually configure base URLs.
-*   **Image Style Flush Handling**: The Image Styles Queuer plugin queues invalidations on image style flush, including when an image style is updated and saved.
-*   **Customizable Invalidation Expressions**: Allows site developers to control how files are invalidated based on the requirements of their external caching layer.
+*   **Invalidation Queuing**: Provides a Queuer for file invalidations, allowing flexible integration with any Queue or Processor plugin(s).
+*   **Image Style and Derivative Support**: Generates invalidations for image styles as well as image derivatives.
+*   **Highly Configurable**: Choose between different invalidation methods for files, image styles, and image derivative, filter based on the file scheme (public, private, etc.), and manually configure base URLs.
+*   **Multiple Ways to Invalidate**: Choose between absolute URLs, relative URLs (file paths), or regex/wildcard patterns. For more specific cases, invalidation generation is exposed as a plugin system for easy customization.
 
 Setup
 -----
@@ -24,7 +24,7 @@ Out of the box, a file's relative URL is used as the invalidation expression. A 
 Extending
 ---------
 
-Invalidation expression generation can be modified or extended by interacting with the ExpressionStrategy plugin system included with this module. This system allows for fine-grained control over how the URL expressions used for invalidation are generated.
+Invalidation expression generation can be modified or extended by interacting with the `ExpressionStrategy` plugin system included with this module. This system allows for fine-grained control over how the URL expressions used for invalidation are generated.
 
 ### ExpressionStrategy Plugin System
 
